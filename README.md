@@ -1,6 +1,7 @@
 # Echoedge
 Repo with code and instructions on how to run echodata analysis on the edge. 
 
+![Sailor](https://www.slu.se/globalassets/ew/org/inst/aqua/externwebb/om-oss/forskningsinfrastruktur/aquasailor-jhentati-300.jpg?width=480&height=480&mode=crop&upscale=false&format=webp)
 
 ## Usage and installation instructions
 These instructions are based on Raspberry Pi 5 (4GB RAM) as the edge device. It is possible that the setup could differ with other edge devices. 
@@ -16,6 +17,7 @@ pip3 install -r requirements.txt
 ```
 
 ### Workflow
+Add image describing the workflow
 
 ### Create txt-file from a dir with files
 
