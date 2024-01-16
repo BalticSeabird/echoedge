@@ -16,6 +16,25 @@ python3 -m venv venv
 pip3 install -r requirements.txt
 ```
 
+Give yourself the permission to excute `main.py`.
+```Shell
+cd code
+chmod u+x main.py
+```
+
+A cron job has to be configured since the scripts should be running automatically every time the edge device reboots.
+```Shell
+apt-get update && apt-get upgrade
+apt-get install cron # if cron is not installed
+systemctl status cron # verify that the installation was successful
+crontab -e # edit the crontab file
+```
+Add the following row to the crontab file to run the shell-script on reboot of your device.
+```Shell
+@reboot sh /PATH/TO/REPO/echoedge/reboot.sh
+```
+
+
 ### Workflow
 Add image describing the workflow
 
@@ -25,10 +44,7 @@ Add image describing the workflow
 import os 
 
 for file in os.listdir('/home/joakim/Dokument/sailor_data'):
-    print(file)
-
     with open('completed_files.txt', 'a') as txt_doc:
-
         txt_doc.write(f'{file}\n')
 ```
 
