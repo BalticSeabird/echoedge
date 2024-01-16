@@ -1,0 +1,8 @@
+echopype==0.8.1
+matplotlib==3.8.2
+numpy==1.26.3
+opencv_python==4.9.0.80
+pandas==2.1.4
+Pillow==10.2.0
+PyYAML==6.0.1
+xarray==2023.12.0
