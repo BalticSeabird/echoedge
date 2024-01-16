@@ -1,0 +1,32 @@
+# R files
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Raw files
+*.raw
+
+# Mac system files
+.DS_Store
+
+# Image files
+*.png
+*.jpg
+
+# CSV files
+*.csv
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
