@@ -5,7 +5,7 @@ Repo with code and instructions on how to run echodata analysis on the edge.
 ## Usage and installation instructions
 These instructions are based on Raspberry Pi 5 (4GB RAM) as the edge device. It is possible that the setup could differ with other edge devices. 
 
-#### Installation and setup
+### Installation and setup
 Clone this git repo and create a virtual environment with all necessary packages.
 
 ```Shell
@@ -15,7 +15,7 @@ python3 -m venv venv
 pip3 install -r requirements.txt
 ```
 
-### Worklflow
+### Workflow
 
 ### Create txt-file from a dir with files
 
