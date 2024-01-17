@@ -4,7 +4,7 @@ Repo with code and instructions on how to run echodata processing and analysis o
 ![Sailor](https://www.slu.se/globalassets/ew/org/inst/aqua/externwebb/om-oss/forskningsinfrastruktur/aquasailor-jhentati-300.jpg?width=480&height=480&mode=crop&upscale=false&format=webp)
 
 ## Usage and installation instructions
-These instructions are based on Raspberry Pi 5 (4GB RAM) as edge device. It is possible that the setup could differ when using other edge devices. 
+These instructions are based on Raspberry Pi 5 (4GB RAM) as edge device. It is possible that the setup and the installation process could differ when using other edge devices. 
 
 ### Code and environment
 Clone this git repo and create a virtual environment with all necessary packages.
