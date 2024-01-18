@@ -16,7 +16,7 @@ with open('params.yaml', 'r') as f:
     params = list(yaml.load_all(f, Loader=SafeLoader))
 
 
-# Remove already processed files 
+# Remove already processed files  
 path = '/media/joakim/BSP-CORSAIR/edge/input' # path to USB with raw-files
 completed_files_path = 'completed_files.txt'
 new_processed_files_path = 'new_processed_files.txt'

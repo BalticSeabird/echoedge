@@ -1,9 +1,12 @@
 #!/bin/bash
 
 # go to dir
-cd code # update path
+cd code
+
+# define paths?
+
 
 # run python scripts
-./NPUSensorSimulator.py # update params
+./update_params.py
 ./main.py 
-# send files? 
+./send_results.py
