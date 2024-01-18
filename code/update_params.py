@@ -55,10 +55,8 @@ def get_all_keys(d):
 def update_nested_dicts(base_dict, changes_dict):
     for key, val in changes_dict.items():
         if isinstance(val, dict):
-            # Om värdet är ett dictionary, rekursivt anropa funktionen
             base_dict[key] = update_nested_dicts(base_dict.get(key, {}), val)
         else:
-            # Annars, uppdatera värdet direkt
             base_dict[key] = float(val)
     return base_dict
 
