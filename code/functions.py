@@ -344,7 +344,7 @@ def medianfun(x, start, stop):
 def save_data(data, filename, save_path, txt_path):
 
     df = pd.DataFrame(data)
-    df.to_csv(save_path)
+    df.to_csv(f'{save_path}/{filename}')
 
     with open(txt_path, 'a') as txt_doc:
         txt_doc.write(f'{filename}\n')

@@ -19,7 +19,7 @@ with open('params.yaml', 'r') as f:
 # Remove already processed files 
 path = '/media/joakim/BSP-CORSAIR/edge/input' # path to USB with raw-files
 completed_files_path = 'completed_files.txt'
-new_processed_files_path = 'completed_files.txt'
+new_processed_files_path = 'new_processed_files.txt'
 
 files = os.listdir(path)
 
@@ -86,9 +86,10 @@ if files:
         # Save all results in dict
         data_dict = {
             'time': ping_times,
-            'bottom hardeness': hardness,
-            'bottom roughness': depth_roughness,
-            'wave depth': wave_line,
+            'bottom_hardeness': hardness,
+            'bottom_roughness': depth_roughness,
+            'wave_depth': wave_line,
+            'depth': depth,
             'nasc0': nasc0,
             'fish_depth0': fish_depth0, 
             'nasc1': nasc1,
