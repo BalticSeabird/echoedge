@@ -68,7 +68,7 @@ Since energy consumption, boot time and processing speed are the three of the ma
 | VM (8 cores), Ubuntu 22.04.3 LTS| 32 | N/A | 5 |
 
 ### Echosounder 
-We are using [Kongsberg-Simrad](https://www.kongsberg.com/maritime/contact/simrad/)'s EK80 echosounder. Read more about suported echosounders, the supported raw file types and how to convert the raw-files in the [Echopype documentation](https://echopype.readthedocs.io/en/stable/convert.html#conversion-operation). If you are using another echosunder than [Kongsberg-Simrad](https://www.kongsberg.com/maritime/contact/simrad/)'s EK80 echosounder, you will have to update the `sonar_model` in `functions.py`.
+We are using [Kongsberg-Simrad](https://www.kongsberg.com/maritime/contact/simrad/)'s EK80 echosounder. Read more about supported echosounders, the supported raw file types and how to convert the raw-files in the [Echopype documentation](https://echopype.readthedocs.io/en/stable/convert.html#conversion-operation). If you are using another echosunder than [Kongsberg-Simrad](https://www.kongsberg.com/maritime/contact/simrad/)'s EK80 echosounder, you will have to update the `sonar_model` in `functions.py`.
 
 ```Python
 raw_echodata = ep.open_raw(path, sonar_model="EK80")
