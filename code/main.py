@@ -3,11 +3,10 @@
 import numpy as np
 import warnings
 import yaml
-import time
 import os
 
 from yaml.loader import SafeLoader
-from functions import process_data, find_bottom, data_to_images, find_waves, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
+from functions import process_data, save_data, find_bottom, data_to_images, find_waves, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
 
 warnings.filterwarnings("ignore")
 
@@ -20,6 +19,7 @@ with open('params.yaml', 'r') as f:
 # Remove already processed files 
 path = '/media/joakim/BSP-CORSAIR/edge/input' # path to USB with raw-files
 completed_files_path = 'completed_files.txt'
+new_processed_files_path = 'completed_files.txt'
 
 files = os.listdir(path)
 
@@ -28,6 +28,8 @@ completed_files = [line for line in completed_txt_file.readlines()]
 completed_files = [file.replace('\n', '') for file in completed_files]
 
 files = [f for f in files if f not in completed_files]
+
+open(new_processed_files_path, "w").close()
 
 
 if files:
@@ -97,7 +99,10 @@ if files:
             'fish_depth3': fish_depth3, 
         }
 
-        data_to_images(new_echodata, f'test2') # save img without ground
+        # data_to_images(new_echodata, f'test2') # save img without ground
+
+        save_data(data_dict, file.replace('.raw', '.csv'), '/media/joakim/BSP-CORSAIR/edge/output', new_processed_files_path)
+
 
 else:
     print('All exising files already processed and analyzed.')

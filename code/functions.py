@@ -3,6 +3,7 @@ import numpy as np
 import echopype as ep
 import matplotlib.pyplot as plt
 import cv2
+import pandas as pd
 
 from pathlib import Path
 
@@ -339,4 +340,12 @@ def medianfun(x, start, stop):
         fish_depth.append(fishdepth)
     return nascx, fish_depth
 
+
+def save_data(data, filename, save_path, txt_path):
+
+    df = pd.DataFrame(data)
+    df.to_csv(save_path)
+
+    with open(txt_path, 'a') as txt_doc:
+        txt_doc.write(f'{filename}\n')
 
