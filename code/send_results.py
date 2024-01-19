@@ -1,15 +1,14 @@
-#!/home/joakim/Dokument/git/echodata/venv/bin/python
-
 import pandas as pd
 import serial
 import time
+import sys
 import os
 
 
-def send_values_to_datalogger(message):
+def send_values_to_datalogger(message, ser_path):
 
     message = str.encode(message) 
-    ser = serial.Serial('/dev/ttyUSB0', 9600,timeout=(5),parity=serial.PARITY_NONE)           
+    ser = serial.Serial(ser_path, 9600,timeout=(5),parity=serial.PARITY_NONE)           
 
     ser.write(b'values_transfer_start\r\n')
     ser.write(message) # Send message to datalogger
@@ -37,7 +36,7 @@ def send_data(data, filename):
         message += f'#{key}={val}'
 
     print(message)
-    send_values_to_datalogger(message)
+    send_values_to_datalogger(message, ser_path)
 
 
 
@@ -72,13 +71,15 @@ def calc_mean_and_send_data(new_files, save_path):
 
 
 if __name__ == '__main__':
-    save_path = '/media/joakim/BSP-CORSAIR/edge/output'
-    txt_path = 'new_processed_files.txt'
+    save_path = sys.argv[1]
+    txt_path = sys.argv[2]
+    ser_path = sys.argv[3]
 
     files = read_txt_file(txt_path)
     print(files)
     if files:
         calc_mean_and_send_data(files, save_path)
         print('Message successfully sent to datalogger.')
+        open(txt_path, "w").close()
     else:
         print('No new results to send to datalogger.')

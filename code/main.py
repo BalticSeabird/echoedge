@@ -1,7 +1,6 @@
-#!/home/joakim/Dokument/git/echodata/venv/bin/python
-
 import numpy as np
 import warnings
+import sys
 import yaml
 import os
 
@@ -17,9 +16,10 @@ with open('params.yaml', 'r') as f:
 
 
 # Remove already processed files  
-path = '/media/joakim/BSP-CORSAIR/edge/input' # path to USB with raw-files
-completed_files_path = 'completed_files.txt'
-new_processed_files_path = 'new_processed_files.txt'
+path = sys.argv[1]
+completed_files_path = sys.argv[2]
+new_processed_files_path = sys.argv[3]
+csv_path = sys.argv[4]
 
 files = os.listdir(path)
 
@@ -70,7 +70,7 @@ if files:
 
         # Find fish cumsum, median depth and inds
         depthx = [int(d) for d in depth]
-                
+        
         nasc = find_fish_median(echodata, wave_line, depthx) 
         nasc0, fish_depth0 = medianfun(nasc, params[0]['fish_layer0_start'], params[0]['fish_layer0_end'])
         nasc1, fish_depth1 = medianfun(nasc, params[0]['fish_layer1_start'], params[0]['fish_layer1_end'])
@@ -83,6 +83,9 @@ if files:
 
         ping_times = ping_times[4:-4]
 
+        print(ping_times)
+        print(depth)
+        print(depthx)
         # Save all results in dict
         data_dict = {
             'time': ping_times,
@@ -100,9 +103,9 @@ if files:
             'fish_depth3': fish_depth3, 
         }
 
-        # data_to_images(new_echodata, f'test2') # save img without ground
+        data_to_images(new_echodata, f'test2') # save img without ground
 
-        save_data(data_dict, file.replace('.raw', '.csv'), '/media/joakim/BSP-CORSAIR/edge/output', new_processed_files_path)
+        save_data(data_dict, file.replace('.raw', '.csv'), csv_path, new_processed_files_path)
 
 
 else:
