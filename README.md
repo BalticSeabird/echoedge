@@ -13,13 +13,8 @@ Clone this git repo and create a virtual environment with all necessary packages
 git clone https://github.com/aidotsejoakim/echoedge
 cd echoedge
 python3 -m venv venv
+source venv/bin/activate
 pip3 install -r requirements.txt
-```
-
-Give yourself the permission to excute `main.py`.
-```Shell
-cd code
-chmod u+x main.py
 ```
 
 A cron job has to be configured since the scripts should be running automatically every time the edge device reboots.
