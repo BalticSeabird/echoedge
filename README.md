@@ -47,7 +47,7 @@ pip3 install -r requirements.txt
 ```
 
 
-##### A cron job has to be configured since the scripts should be running automatically every time the edge device reboots
+##### A cron job has to be configured since the scripts should be running automatically every time the device boots
 ```Shell
 apt-get update && apt-get upgrade
 apt-get install cron # if cron is not installed
