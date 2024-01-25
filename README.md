@@ -7,15 +7,22 @@ Repo with code and instructions on how to run echodata processing and analysis o
 These instructions are based on Raspberry Pi 5 (4GB RAM) as edge device. It is possible that the setup and the installation process could differ when using other edge devices. 
 
 ### Code and environment
-Clone this git repo and create a virtual environment with all necessary packages.
+Clone this git repo and create a virtual environment in Python.
 
 ```Shell
 git clone https://github.com/aidotsejoakim/echoedge
 cd echoedge
 python3 -m venv venv
 source venv/bin/activate
+```
+
+Install necessary packages.
+```Shell
+sudo apt-get install libhdf5-serial-dev netcdf-bin libnetcdf-dev
+sudo apt-get install libatlas-base-dev
 pip3 install -r requirements.txt
 ```
+
 
 A cron job has to be configured since the scripts should be running automatically every time the edge device reboots.
 ```Shell
