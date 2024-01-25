@@ -62,7 +62,7 @@ crontab -e # edit the crontab file
 
 
 ### Workflow
-Add image describing the workflow
+![Workflow](workflow.png)
 
 ### Create txt-file from a dir with files
 
