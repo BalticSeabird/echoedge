@@ -45,7 +45,6 @@ sudo apt-get install libhdf5-serial-dev netcdf-bin libnetcdf-dev
 sudo apt-get install libatlas-base-dev
 sudo apt-get install libopenblas-dev
 pip3 install -r requirements.txt
-pip3 install typing_extensions==4.9.0
 ```
 
 
