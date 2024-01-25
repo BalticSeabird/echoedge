@@ -7,7 +7,29 @@ Repo with code and instructions on how to run echodata processing and analysis o
 These instructions are based on Raspberry Pi 5 (4GB RAM) as edge device. It is possible that the setup and the installation process could differ when using other edge devices. 
 
 ### Code and environment
-Start by checking your current environment. It should be possible to run with other Python-versions and other operating systems. Please note that the latest version of `Echopype` is only compatible with `Python>=3.9`.
+Start by checking your current environment, our configuratios are shown below. It should be possible to run with other python-versions and other operating systems. Please note that the latest version of `Echopype` is only compatible with `Python>=3.9`.
+
+Check python-version
+```Shell
+$ python3 --version
+Python 3.11.2
+```
+
+Check pip-version
+```Shell
+$ pip3 --version
+pip 23.0.1 from /usr/lib/python3/dist-packages/pip (python 3.11)
+```
+
+Check distro and version
+```Shell
+$ lsb_release -a
+No LSB modules are available.
+Distributor ID:	Raspbian
+Description:	Raspbian GNU/Linux 12 (bookworm)
+Release:	12
+Codename:	bookworm
+```
 
 Clone this git repo and create a virtual environment in Python.
 ```Shell
