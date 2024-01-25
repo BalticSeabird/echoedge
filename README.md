@@ -50,8 +50,8 @@ pip3 install -r requirements.txt
 
 ##### A cron job has to be configured since the scripts should be running automatically every time the device boots
 ```Shell
-apt-get update && apt-get upgrade
-apt-get install cron # if cron is not installed
+sudo apt-get update && apt-get upgrade
+sudo apt-get install cron # if cron is not installed
 systemctl status cron # verify that the installation was successful
 crontab -e # edit the crontab file
 ```
