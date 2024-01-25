@@ -52,6 +52,7 @@ pip3 install -r requirements.txt
 ```Shell
 sudo apt-get update
 sudo apt-get upgrade
+sudo apt-get install postfix
 sudo apt-get install cron
 systemctl status cron # verify that cron is running
 crontab -e # edit the crontab file
