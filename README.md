@@ -52,8 +52,8 @@ pip3 install -r requirements.txt
 ```Shell
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt-get install cron # if cron is not installed
-systemctl status cron # verify that the installation was successful
+sudo apt-get install cron
+systemctl status cron # verify that cron is running
 crontab -e # edit the crontab file
 ```
 
