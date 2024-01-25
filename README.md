@@ -7,8 +7,9 @@ Repo with code and instructions on how to run echodata processing and analysis o
 These instructions are based on Raspberry Pi 5 (4GB RAM) as edge device. It is possible that the setup and the installation process could differ when using other edge devices. 
 
 ### Code and environment
-Clone this git repo and create a virtual environment in Python.
+Start by checking your current environment. It should be possible to run with other Python-versions and other operating systems. Please note that the latest version of Echopype is only compatible with `Python>=3.9`.
 
+Clone this git repo and create a virtual environment in Python.
 ```Shell
 git clone https://github.com/aidotsejoakim/echoedge
 cd echoedge
