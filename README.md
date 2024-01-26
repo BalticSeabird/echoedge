@@ -86,13 +86,32 @@ crontab -e # edit the crontab file
 All params are stored in a file named `params.yaml`. You can update the parameters by sending a string with the params and values you wish to update. This is an example of `params.yaml`.
 
 ```Yaml
+bin_size: 0.1
+
 cal_params:
   gain_correction: 28.49
   equialent_beam_angle: -21
-
-bin_size: 0.1
+```
+Always start your message with a `#`. To update a param with a new value, use the following message
+```Shell
+"#param=val"
+"#this.is.a.nested.param=val" # use . for nested parameters
 ```
 
+If yow wish to set `bin_size=0.2`, use the following message
+```Shell
+"#bin_size=0.2"
+```
+
+If yow wish to set `gain_correction=29.55`, use the following message
+```Shell
+"#cal_params.gain_correction=29.55"
+```
+
+You can also add multiple updates together in the same command
+```Shell
+"#bin_size=0.2#cal_params.gain_correction=29.55"
+```
 
 ### Create txt-file from a dir with files
 
