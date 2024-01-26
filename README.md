@@ -83,7 +83,9 @@ crontab -e # edit the crontab file
 @reboot sh /PATH/TO/REPO/echoedge/reboot.sh
 ```
 ### Syntax to update parameters
-All params are stored in a file named `params.yaml`. You can update the parameters by sending a string with the params and values you wish to update. This is an example of `params.yaml`.
+All params are stored in a file named `params.yaml`. You can update the parameters by sending a string with the params and values you wish to update. 
+
+##### This is an example of `params.yaml`.
 
 ```Yaml
 bin_size: 0.1
