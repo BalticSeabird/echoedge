@@ -47,6 +47,26 @@ sudo apt-get install libopenblas-dev
 pip3 install -r requirements.txt
 ```
 
+##### Update reboot.sh with correct paths, both when defining variaables and when running python-scripts
+```Shell
+#!/bin/bash
+
+# define paths
+params_path="/PATH/TO/REPO/echoedge/code/params.yaml"
+params_ranges_path="/PATH/TO/REPO/echoedge/code/ranges.yaml"
+csv_path="PATH/TO/STORAGE/OUTPUT"
+raw_path="PATH/TO/STORAGE/INPUT"
+new_files_path="/PATH/TO/REPO/echoedge/code/new_processed_files.txt"
+completed_files_path="/PATH/TO/REPO/echoedge/code/completed_files.txt"
+serial_path="PATH/TO/SERIAL/OUTPUT"
+params_to_update="#env_params.temperature=25"
+
+# run python scripts
+/PATH/TO/REPO/echoedge/venv/bin/python3.11 /PATH/TO/REPO/echoedge/code/update_params.py "$params_path" "$params_ranges_path" "$params_to_update"
+/PATH/TO/REPO/echoedge/venv/bin/python3.11 /PATH/TO/REPO/echoedge/code/main.py "$raw_path" "$completed_files_path" "$new_files_path" "$csv_path" "$params_path"
+/PATH/TO/REPO/echoedge/venv/bin/python3.11 /PATH/TO/REPO/echoedge/code/send_results.py "$csv_path" "$new_files_path" "$serial_path"
+
+```
 
 ##### A cron job has to be configured since the scripts should be running automatically every time the device boots
 ```Shell
