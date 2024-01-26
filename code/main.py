@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 
 
 # Load all params from yaml-file
-with open('params.yaml', 'r') as f:
+with open(sys.argv[5], 'r') as f:
     params = list(yaml.load_all(f, Loader=SafeLoader))
 
 
@@ -48,7 +48,7 @@ if files:
         echodata, nan_indicies = remove_vertical_lines(echodata)
         echodata_swap = np.swapaxes(echodata, 0, 1)
 
-        data_to_images(echodata_swap, f'test') # save img without ground
+        # data_to_images(echodata_swap, f'test') # save img without ground
 
         # Detect bottom algorithms
         depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['beam_dead_zone'], params[0]['bottom_offset'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
@@ -103,7 +103,7 @@ if files:
             'fish_depth3': fish_depth3, 
         }
 
-        data_to_images(new_echodata, f'test2') # save img without ground
+        # data_to_images(new_echodata, f'test2') # save img without ground
 
         save_data(data_dict, file.replace('.raw', '.csv'), csv_path, new_processed_files_path)
 
