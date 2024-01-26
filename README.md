@@ -7,7 +7,7 @@ Repo with code and instructions on how to run echodata processing and analysis o
 These instructions are based on Raspberry Pi 5 (4GB RAM) as edge device. It is possible that the setup and the installation process could differ when using other edge devices. 
 
 ### Code and environment
-Start by checking your current environment, our configuratios are shown below. It should be possible to run with other python-versions and other operating systems. Please note that the latest version of `Echopype` is only compatible with `Python>=3.9`.
+Start by checking your current environment, our configurations are shown below. It should be possible to run with other python-versions and other operating systems. Continue by cloning this repo, installing necessary packages and creating a cronjob. Please note that the latest version of `Echopype` is only compatible with `Python>=3.9`.
 
 ##### Check python-version
 ```Shell
@@ -59,7 +59,7 @@ raw_path="PATH/TO/STORAGE/INPUT"
 new_files_path="/PATH/TO/REPO/echoedge/code/new_processed_files.txt"
 completed_files_path="/PATH/TO/REPO/echoedge/code/completed_files.txt"
 serial_path="PATH/TO/SERIAL/OUTPUT"
-params_to_update="#env_params.temperature=25"
+params_to_update="#env_params.temperature=25" # example of message to update params
 
 # run python scripts
 /PATH/TO/REPO/echoedge/venv/bin/python3.11 /PATH/TO/REPO/echoedge/code/update_params.py "$params_path" "$params_ranges_path" "$params_to_update"
@@ -82,10 +82,17 @@ crontab -e # edit the crontab file
 ```Shell
 @reboot sh /PATH/TO/REPO/echoedge/reboot.sh
 ```
+### Syntax to update parameters
+All params are stored in a file named `params.yaml`. You can update the parameters by sending a string with the params and values you wish to update. This is an example of `params.yaml`.
 
+```Yaml
+cal_params:
+  gain_correction: 28.49
+  equialent_beam_angle: -21
 
-### Workflow
-![Workflow](workflow.png)
+bin_size: 0.1
+```
+
 
 ### Create txt-file from a dir with files
 
@@ -102,6 +109,9 @@ for file in os.listdir('/home/joakim/Dokument/sailor_data'):
 ```Shell
 lsblk
 ```
+
+## Workflow
+![Workflow](workflow.png)
 
 ## Hardware
 
