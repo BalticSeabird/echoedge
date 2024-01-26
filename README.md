@@ -47,7 +47,7 @@ sudo apt-get install libopenblas-dev
 pip3 install -r requirements.txt
 ```
 
-##### Update `reboot.sh` with correct paths, both when defining variaables and when running python-scripts
+##### Update `reboot.sh` with correct paths, both when defining variables and when running python-scripts
 ```Shell
 #!/bin/bash
 
