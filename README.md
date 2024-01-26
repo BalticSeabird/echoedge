@@ -7,31 +7,65 @@ Repo with code and instructions on how to run echodata processing and analysis o
 These instructions are based on Raspberry Pi 5 (4GB RAM) as edge device. It is possible that the setup and the installation process could differ when using other edge devices. 
 
 ### Code and environment
-Clone this git repo and create a virtual environment with all necessary packages.
+Start by checking your current environment, our configuratios are shown below. It should be possible to run with other python-versions and other operating systems. Please note that the latest version of `Echopype` is only compatible with `Python>=3.9`.
 
+##### Check python-version
+```Shell
+$ python3 --version
+Python 3.11.2
+```
+
+##### Check pip-version
+```Shell
+$ pip3 --version
+pip 23.0.1 from /usr/lib/python3/dist-packages/pip (python 3.11)
+```
+
+##### Check distro and version
+```Shell
+$ lsb_release -a
+No LSB modules are available.
+Distributor ID:	Raspbian
+Description:	Raspbian GNU/Linux 12 (bookworm)
+Release:	12
+Codename:	bookworm
+```
+
+##### Clone this git repo and create a virtual environment in Python
 ```Shell
 git clone https://github.com/aidotsejoakim/echoedge
 cd echoedge
 python3 -m venv venv
 source venv/bin/activate
+```
+
+##### Install necessary packages
+```Shell
+sudo apt-get install libhdf5-serial-dev netcdf-bin libnetcdf-dev
+sudo apt-get install libatlas-base-dev
+sudo apt-get install libopenblas-dev
 pip3 install -r requirements.txt
 ```
 
-A cron job has to be configured since the scripts should be running automatically every time the edge device reboots.
+
+##### A cron job has to be configured since the scripts should be running automatically every time the device boots
 ```Shell
-apt-get update && apt-get upgrade
-apt-get install cron # if cron is not installed
-systemctl status cron # verify that the installation was successful
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install postfix
+sudo apt-get install cron
+systemctl status cron # verify that cron is running
 crontab -e # edit the crontab file
 ```
-Add the following row to the crontab file to run the shell-script on reboot of your device.
+
+##### Add the following row to the crontab file to run the shell-script on reboot of your device
 ```Shell
 @reboot sh /PATH/TO/REPO/echoedge/reboot.sh
 ```
 
 
 ### Workflow
-Add image describing the workflow
+![Workflow](workflow.png)
 
 ### Create txt-file from a dir with files
 
