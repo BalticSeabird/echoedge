@@ -67,6 +67,34 @@ def calc_mean_and_send_data(new_files, save_path):
             means = df.mean(axis=0)
             means = means.to_dict()
             send_data(means, file[:-4])
+
+
+
+
+def calc_mean_and_send_data2(new_files, save_path):
+
+    """
+    Function to calc mean for each parameter and file.
+    """
+    
+    cols = ['time','hardness','bottom_roughness', 'wave_depth', 'depth', 'nasc0', 'fish_depth0', 'nasc1', 'fish_depth1', 'nasc2', 'fish_depth2', 'nasc3', 'fish_depth3']
+    cols_dict = {}
+
+    for col in cols:
+        cols_dict[col] = []
+
+    for file in new_files:
+        df_temp = pd.read_csv(f'{save_path}/{file}')
+        
+        for col in cols:
+            cols_dict[col].extend(df_temp[col].tolist())
+
+    df = pd.DataFrame(cols_dict, columns=cols)
+
+    means = df.mean(axis=0)
+    means = means.to_dict()
+    print(means)
+    send_data(means, file[:-4])
             
 
 
@@ -76,10 +104,13 @@ if __name__ == '__main__':
     ser_path = sys.argv[3]
 
     files = read_txt_file(txt_path)
-    print(files)
+
     if files:
-        calc_mean_and_send_data(files, save_path)
-        print('Message successfully sent to datalogger.')
-        open(txt_path, "w").close()
+        try: 
+            calc_mean_and_send_data(files, save_path)
+            print('Message successfully sent to datalogger.')
+            open(txt_path, "w").close()
+        except:
+            print('Problems sending the results.')
     else:
         print('No new results to send to datalogger.')
