@@ -115,21 +115,6 @@ cal_params:
 "#bin_size=0.2#cal_params.gain_correction=29.55"
 ```
 
-### Create txt-file from a dir with files
-
-```Python
-import os 
-
-for file in os.listdir('/home/joakim/Dokument/sailor_data'):
-    with open('completed_files.txt', 'a') as txt_doc:
-        txt_doc.write(f'{file}\n')
-```
-
-### Help
-##### To find path to mounted USB-device
-```Shell
-lsblk
-```
 
 ## Workflow
 ![Workflow](workflow.png)
