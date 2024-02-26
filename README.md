@@ -140,4 +140,4 @@ raw_echodata = ep.open_raw(path, sonar_model="EK80")
 ```
 
 ## Ackownledgements
-* The processing of the raw-files from the echosounder are based on the [Echopype](https://echopype.readthedocs.io/en/stable/) library. 
+* The processing of the raw-files from the echosounder is based on the [Echopype](https://echopype.readthedocs.io/en/stable/) library. 
