@@ -8,7 +8,7 @@ img_path="/media/Sailor_flash/img"
 raw_path="/media/Sailor_flash/raw"
 new_files_path="/home/joakim/Dokument/git/echoedge/code/new_processed_files.txt"
 completed_files_path="/home/joakim/Dokument/git/echoedge/code/completed_files.txt"
-serial_path="/media/Sailor_flash"
+serial_path="/sys/class/tty/ttyUSB0/"
 params_to_update="#env_params.temperature=25"
 
 # run python scripts
