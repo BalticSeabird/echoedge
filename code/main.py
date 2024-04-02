@@ -20,6 +20,7 @@ path = sys.argv[1]
 completed_files_path = sys.argv[2]
 new_processed_files_path = sys.argv[3]
 csv_path = sys.argv[4]
+img_path = sys.argv[6]
 
 files = os.listdir(path)
 
@@ -48,7 +49,7 @@ if files:
         echodata, nan_indicies = remove_vertical_lines(echodata)
         echodata_swap = np.swapaxes(echodata, 0, 1)
 
-        # data_to_images(echodata_swap, f'test') # save img without ground
+        data_to_images(echodata_swap, f'{img_path}/{new_file_name}.png') # save img without ground
 
         # Detect bottom algorithms
         depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['beam_dead_zone'], params[0]['bottom_offset'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
@@ -103,7 +104,7 @@ if files:
             'fish_depth3': fish_depth3, 
         }
 
-        # data_to_images(new_echodata, f'test2') # save img without ground
+        data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete.png') # save img without ground and waves
 
         save_data(data_dict, file.replace('.raw', '.csv'), csv_path, new_processed_files_path)
 
