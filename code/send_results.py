@@ -102,9 +102,7 @@ if __name__ == '__main__':
     save_path = sys.argv[1]
     txt_path = sys.argv[2]
     ser_path = sys.argv[3]
-
-    send_values_to_datalogger('ready', ser_path)
-
+    
     files = read_txt_file(txt_path)
 
     if files:
