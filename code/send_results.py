@@ -10,7 +10,6 @@ def send_values_to_datalogger(message, ser_path):
     message = str.encode(message) 
     ser = serial.Serial(ser_path, 9600,timeout=(5),parity=serial.PARITY_NONE)           
 
-    ser.write(b'values_transfer_start\r\n')
     ser.write(message) # Send message to datalogger
     time.sleep(1)
     ser.close()
@@ -99,16 +98,22 @@ def calc_mean_and_send_data2(new_files, save_path):
 
 
 if __name__ == '__main__':
+
     save_path = sys.argv[1]
     txt_path = sys.argv[2]
     ser_path = sys.argv[3]
 
+    send_values_to_datalogger('ready', ser_path)
+
     files = read_txt_file(txt_path)
 
     if files:
+        send_values_to_datalogger('message_transfer_start', ser_path)
         #try: 
         calc_mean_and_send_data2(files, save_path)
         print('Message successfully sent to datalogger.')
         open(txt_path, "w").close()
+        send_values_to_datalogger('shutdown', ser_path)
     else:
         print('No new results to send to datalogger.')
+        send_values_to_datalogger('shutdown', ser_path)
