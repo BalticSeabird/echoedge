@@ -7,7 +7,7 @@ csv_path="/media/joakim/BSP-CORSAIR/edge/output"
 raw_path="/media/joakim/BSP-CORSAIR/edge/input"
 new_files_path="/home/joakim/Dokument/git/echoedge/code/new_processed_files.txt"
 completed_files_path="/home/joakim/Dokument/git/echoedge/code/completed_files.txt"
-serial_path="/dev/ttyUSB0"
+serial_path="/media/Sailor_flash"
 params_to_update="#env_params.temperature=25"
 
 # run python scripts
