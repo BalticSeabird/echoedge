@@ -231,10 +231,12 @@ def find_waves(echodata, wave_thresh, in_a_row_waves, dead_zone):
     line = []
 
     for ping in range(echodata.shape[1]):
+
         in_a_row = 0
         found_limit = False
-
+  
         for i in range(echodata.shape[0]):
+
             if echodata[i, ping] < wave_thresh: 
                 in_a_row += 1
             else:
@@ -242,12 +244,12 @@ def find_waves(echodata, wave_thresh, in_a_row_waves, dead_zone):
 
             if in_a_row == in_a_row_waves: 
                 found_limit = True
-                line.append(i)
+                line.append(i-7)
                 break
 
         if not found_limit:
             line.append(dead_zone)
-            
+
 
     for ping in range(echodata.shape[1]):
         echodata[:line[ping], ping] = 0
