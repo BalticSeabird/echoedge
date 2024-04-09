@@ -5,7 +5,7 @@ import yaml
 import os
 
 from yaml.loader import SafeLoader
-from functions import process_data, save_data, find_bottom, data_to_images, find_waves, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
+from new_functions2 import process_data, save_data, find_bottom, data_to_images, find_waves, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
 
 warnings.filterwarnings("ignore")
 
@@ -21,6 +21,8 @@ completed_files_path = sys.argv[2]
 new_processed_files_path = sys.argv[3]
 csv_path = sys.argv[4]
 img_path = sys.argv[6]
+sonar_depth = 0.53
+
 
 files = os.listdir(path)
 
@@ -52,9 +54,7 @@ if files:
         data_to_images(echodata_swap, f'{img_path}/{new_file_name}.png') # save img without ground
 
         # Detect bottom algorithms
-        depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['beam_dead_zone'], params[0]['bottom_offset'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
-        hardness = hardness[4:-4]
-
+        depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['beam_dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
 
         # Find, measure and remove waves in echodata
         new_echodatax = new_echodata.copy()
@@ -79,18 +79,28 @@ if files:
         nasc3, fish_depth3 = medianfun(nasc, params[0]['fish_layer3_start'], params[0]['fish_layer3_end'])
 
 
+        #change from dm to meters 
+        depth = [i*0.1 for i in depth]
+        depth_roughness = 0.1*depth_roughness
+        wave_line = [i*0.1 for i in wave_line]
+
+        #adding sonar depth to depth variables 
+        for depth_list in [depth, wave_line, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
+            for i in range(len(depth_list)):
+                depth_list[i] += sonar_depth
+
+        #round values to two decimal places
+        for list in [depth, hardness, wave_line, nasc0, nasc1, nasc2, nasc3, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
+            list[:] = [round(x, 2) for x in list]
+
         if nan_indicies.size != 0:
             ping_times = clean_times(ping_times, nan_indicies)
 
-        ping_times = ping_times[4:-4]
-
-        print(ping_times)
-        print(depth)
-        print(depthx)
+ 
         # Save all results in dict
         data_dict = {
             'time': ping_times,
-            'bottom_hardeness': hardness,
+            'bottom_hardness': hardness,
             'bottom_roughness': depth_roughness,
             'wave_depth': wave_line,
             'depth': depth,
@@ -103,6 +113,7 @@ if files:
             'nasc3': nasc3,
             'fish_depth3': fish_depth3, 
         }
+ 
 
         data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete.png') # save img without ground and waves
 
