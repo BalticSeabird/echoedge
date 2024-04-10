@@ -5,7 +5,7 @@ import yaml
 import os
 
 from yaml.loader import SafeLoader
-from new_functions2 import process_data, save_data, find_bottom, data_to_images, find_waves, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
+from functions import process_data, save_data, find_bottom, data_to_images, find_waves, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
 
 warnings.filterwarnings("ignore")
 
@@ -51,7 +51,7 @@ if files:
         echodata, nan_indicies = remove_vertical_lines(echodata)
         echodata_swap = np.swapaxes(echodata, 0, 1)
 
-        data_to_images(echodata_swap, f'{img_path}/{new_file_name}.png') # save img without ground
+        data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
 
         # Detect bottom algorithms
         depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['beam_dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
@@ -63,7 +63,6 @@ if files:
             new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
         else:
             new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
-            wave_dif = wave_avg / wave_smoothness
 
             if wave_avg > params[0]['extreme_wave_size']: 
                 new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
@@ -115,7 +114,7 @@ if files:
         }
  
 
-        data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete.png') # save img without ground and waves
+        data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
 
         save_data(data_dict, file.replace('.raw', '.csv'), csv_path, new_processed_files_path)
 
