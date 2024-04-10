@@ -7,7 +7,7 @@ import os
 
 def send_values_to_datalogger(message, ser_path):
 
-    message = str.encode(message) 
+    # message = str.encode(message) 
     message = f'{message}\r\n'.encode()
     ser = serial.Serial(ser_path, 9600,timeout=(5),parity=serial.PARITY_NONE)           
 
@@ -94,7 +94,6 @@ def calc_mean_and_send_data2(new_files, save_path):
 
     means = df.median(axis=0)
     means = means.to_dict()
-    print(means)
     send_data(means, file[:-4])
             
 
@@ -113,9 +112,11 @@ if __name__ == '__main__':
         calc_mean_and_send_data2(files, save_path)
         print('Message successfully sent to datalogger.')
         open(txt_path, "w").close()
-        send_values_to_datalogger('shutdown', ser_path)
+        
     else:
         print('No new results to send to datalogger.')
         send_values_to_datalogger('values_transfer_start', ser_path)
         send_values_to_datalogger('-1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0', ser_path)
-        send_values_to_datalogger('shutdown', ser_path)
+    
+    time.sleep(10)
+    send_values_to_datalogger('shutdown', ser_path)
