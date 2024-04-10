@@ -34,6 +34,7 @@ def send_data(data, filename):
     
     message = ''
     for key, val in data.items():
+        val = round(val, 2)
         message += f'{val} '
 
     print(message)
