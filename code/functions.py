@@ -182,7 +182,7 @@ def find_bottom(echodata, window_size, surf_offset, bottom_offset, bottom_roughn
             #print(len(hardness_smooth))
             #print(depth_smooth[item])
             if hardness_smooth[item] < -25 :
-                depth_smooth[item] = 970 
+                depth_smooth[item] = 970
 
 
     # Remove Bottom echoes above strongest echo
