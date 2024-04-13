@@ -193,6 +193,8 @@ def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, botto
         int_list = [int(item) for item in depth_smooth]
         for i in range(0, len(depth_smooth)):
             echodata[int_list[i]:,(i)] = 0
+    
+    depth_smooth = [x+dead_zone for x in depth_smooth]
 
     return depth_smooth, hardness, depth_roughness, echodata
 

@@ -87,7 +87,8 @@ if files:
                 #adding sonar depth to depth variables 
                 for depth_list in [depth, wave_line, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
                     for i in range(len(depth_list)):
-                        depth_list[i] += sonar_depth
+                        if sum(depth_list)/len(depth_list) != 0:
+                            depth_list[i] += sonar_depth
 
                 #round values to two decimal places
                 for list in [depth, hardness, wave_line, nasc0, nasc1, nasc2, nasc3, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
