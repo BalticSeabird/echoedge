@@ -221,14 +221,12 @@ def find_layer(echodata, dead_zone, in_a_row_thresh, layer_quantile, layer_stren
         return False
         
 
-
-
 def find_wave_smoothness(waves_list):
     wave_difs = [abs(j-i) for i, j in zip(waves_list[:-1], waves_list[1:])]
     wave_smoothness = sum(wave_difs) / len(waves_list)
     return wave_smoothness
 
-def find_waves(echodata, wave_thresh, in_a_row_waves, dead_zone):
+def find_waves(echodata, wave_thresh, in_a_row_waves, beam_dead_zone):
 
     line = []
 
@@ -236,8 +234,8 @@ def find_waves(echodata, wave_thresh, in_a_row_waves, dead_zone):
 
         in_a_row = 0
         found_limit = False
-  
-        for i in range(echodata.shape[0]):
+
+        for i in range(beam_dead_zone, echodata.shape[0]):
 
             if echodata[i, ping] < wave_thresh: 
                 in_a_row += 1
@@ -246,11 +244,12 @@ def find_waves(echodata, wave_thresh, in_a_row_waves, dead_zone):
 
             if in_a_row == in_a_row_waves: 
                 found_limit = True
-                line.append(i-7)
+                line.append(i)
                 break
+            
 
         if not found_limit:
-            line.append(dead_zone)
+            line.append(beam_dead_zone)
 
 
     for ping in range(echodata.shape[1]):
@@ -260,6 +259,7 @@ def find_waves(echodata, wave_thresh, in_a_row_waves, dead_zone):
     wave_smoothness = find_wave_smoothness(line)
 
     return echodata, line, wave_avg, wave_smoothness
+
 
 
 # Find fish volume - NEW JONAS VERSION
