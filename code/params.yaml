@@ -24,7 +24,7 @@ bottom_roughness_thresh: 30
 no_bottom_default: 101
 
 
-beam_dead_zone: 7
+beam_dead_zone: 16
 
 
 wave_thresh: -77
