@@ -7,7 +7,8 @@ import os
 
 def send_values_to_datalogger(message, ser_path):
 
-    message = str.encode(message) 
+    # message = str.encode(message) 
+    message = f'{message}\r\n'.encode()
     ser = serial.Serial(ser_path, 9600,timeout=(5),parity=serial.PARITY_NONE)           
 
     ser.write(message) # Send message to datalogger
@@ -30,9 +31,11 @@ def read_txt_file(path_to_txt):
 
 
 def send_data(data, filename):
-    message = f'#filename={filename}'
+    
+    message = ''
     for key, val in data.items():
-        message += f'#{key}={val}'
+        val = round(val, 2)
+        message += f'{val} '
 
     print(message)
     send_values_to_datalogger(message, ser_path)
@@ -76,7 +79,7 @@ def calc_mean_and_send_data2(new_files, save_path):
     Function to calc mean for each parameter and file.
     """
     
-    cols = ['bottom_hardeness','bottom_roughness', 'wave_depth', 'depth', 'nasc0', 'fish_depth0', 'nasc1', 'fish_depth1', 'nasc2', 'fish_depth2', 'nasc3', 'fish_depth3']
+    cols = ['bottom_hardness','bottom_roughness', 'wave_depth', 'depth', 'nasc0', 'fish_depth0', 'nasc1', 'fish_depth1', 'nasc2', 'fish_depth2', 'nasc3', 'fish_depth3']
     cols_dict = {}
 
     for col in cols:
@@ -92,7 +95,6 @@ def calc_mean_and_send_data2(new_files, save_path):
 
     means = df.median(axis=0)
     means = means.to_dict()
-    print(means)
     send_data(means, file[:-4])
             
 
@@ -104,14 +106,18 @@ if __name__ == '__main__':
     ser_path = sys.argv[3]
     
     files = read_txt_file(txt_path)
+    send_values_to_datalogger('message_transfer_start', ser_path)
 
     if files:
-        send_values_to_datalogger('message_transfer_start', ser_path)
-        #try: 
+        send_values_to_datalogger('values_transfer_start', ser_path)
         calc_mean_and_send_data2(files, save_path)
         print('Message successfully sent to datalogger.')
         open(txt_path, "w").close()
-        send_values_to_datalogger('shutdown', ser_path)
+        
     else:
         print('No new results to send to datalogger.')
-        send_values_to_datalogger('shutdown', ser_path)
+        send_values_to_datalogger('values_transfer_start', ser_path)
+        send_values_to_datalogger('-1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0', ser_path)
+    
+    time.sleep(10)
+    send_values_to_datalogger('shutdown', ser_path)

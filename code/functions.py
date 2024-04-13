@@ -1,13 +1,15 @@
 import xarray as xr
+import pandas as pd
 import numpy as np
 import echopype as ep
 import matplotlib.pyplot as plt
 import cv2
-import pandas as pd
-
+import os 
+from datetime import datetime
 from pathlib import Path
+import warnings
 
-
+warnings.filterwarnings("ignore")
 
 # Process data 
 def swap_chan(ds: xr.Dataset) -> xr.Dataset:
@@ -23,7 +25,7 @@ def swap_chan(ds: xr.Dataset) -> xr.Dataset:
     )
 
 
-def process_data(path, env_params, cal_params, bin_size):
+def process_data(path, env_params, cal_params, bin_size, ping_time_bin='2S', original_resolution=False):
     """
     Env_params : dictionary with water temperature in degree C, salinity, pressure in dBar
     Cal_params : dictionary with gain correction (middle value with 0.6.4 version), equivalent beam angle
@@ -55,14 +57,16 @@ def process_data(path, env_params, cal_params, bin_size):
     ds_MVBS = ep.commongrid.compute_MVBS(
         ds_Sv_raw, # calibrated Sv dataset
         range_meter_bin=bin_size, # bin size to average along range in meters
-        ping_time_bin='2S' # bin size to average along ping_time in seconds
+        ping_time_bin=ping_time_bin # bin size to average along ping_time in seconds
     )
-    
 
-    ds_MVBS = ds_MVBS.pipe(swap_chan)
-    ping_times = ds_MVBS.Sv.ping_time.values
-
-    return ds_MVBS, ping_times
+    if original_resolution == False: 
+        ds_MVBS = ds_MVBS.pipe(swap_chan)
+        ping_times = ds_MVBS.Sv.ping_time.values
+        return ds_MVBS, ping_times
+    else:
+        ping_times = ds_Sv_raw.Sv.ping_time.values
+        return ds_Sv_raw, ping_times
 
 
 def remove_vertical_lines(echodata):
@@ -86,40 +90,41 @@ def clean_times(ping_times, nan_indicies):
     return ping_times
 
 
-
-
-
 # Plot and Visualize data
-def data_to_images(data, filepath=''):
+def data_to_images(data, filepath='', make_wider=False):
     """
     Function to create images (greyscale & viridis) from np_array with high resolution.
     """
 
     np_data = np.nan_to_num(data, copy=True)
-    np_data = np_data[:, 4:-4]
-    #First method normalization of the data
     np_data[np_data<-90]= -90
     np_data = (np_data - np_data.min())/(np_data.max() - np_data.min())
-    # np_data = np.rot90(np_data, k=3) # rotate the np array to rotate the image
     np_data = np_data*256
     
-    flip_np_data = cv2.flip(np_data, 1) # flip the image to display it correctly
+    # flip_np_data = cv2.flip(np_data, 1) # flip the image to display it correctly
 
-    cv2.imwrite(f'{filepath}_greyscale.png', flip_np_data) # greyscale image
+    cv2.imwrite(f'{filepath}_greyscale.png', np_data) # greyscale image
 
     image = cv2.imread(f'{filepath}_greyscale.png', 0)
     colormap = plt.get_cmap('viridis') # 
     heatmap = (colormap(image) * 2**16).astype(np.uint16)[:,:,:3]
     heatmap = cv2.cvtColor(heatmap, cv2.COLOR_RGB2BGR)
 
+    if make_wider == True:
+        height, width = np_data.shape
+        width = int(width * 5)
+        height = int(height / 3)
+        heatmap = cv2.resize(heatmap, (width, height), interpolation=cv2.INTER_CUBIC)
+
     cv2.imwrite(f'{filepath}.png', heatmap) 
+
 
 
 # Find bottom
 def maxecho(x, start, end, i):
     x = x[start:end,(i)]
     maxval = max(x)
-    echodepth = (np.argmax(x==maxval)+start)/10
+    echodepth = (np.argmax(x==maxval)+start)
     return echodepth
 
 def maxval(x, start, end, i):
@@ -128,48 +133,43 @@ def maxval(x, start, end, i):
     return maxval
 
 def move_fun(x, window_size): 
-    
+    # Padd the list with values 
+    padding = window_size // 2 if window_size % 2 == 1 else window_size // 2 - 1
+    x = x[:padding] + x + x[-padding:]
+
     i = 0
-    # Initialize an empty list to store moving averages 
     moving_averages = [] 
     
-    # Loop through the array to consider 
-    # every window of size 3 
+    #moving averages by window size
     while i < len(x) - window_size + 1: 
         
-        # Store elements from i to i+window_size 
-        # in list to get the current window 
         window = x[i : i + window_size] 
-    
-        # Calculate the average of current window 
         window_average = np.median(window) 
-        
-        # Store the average of current 
-        # window in moving average list 
         moving_averages.append(window_average) 
-        
-        # Shift window to right by one position 
         i += 1
     
     return(moving_averages)
 
-def find_bottom(echodata, window_size, surf_offset, bottom_offset, bottom_roughness_thresh, bottom_hardness_thresh):
+
+
+def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, bottom_hardness_thresh):
+
+    bottom_remove = True
     
     depth = []
     for i in range(0, echodata.shape[1]):
-        temp = maxecho(echodata, surf_offset, 979, i)
+        temp = maxecho(echodata, dead_zone, echodata.shape[0] - dead_zone, i)
         depth.append(temp)
-
-    depth = [x*10 for x in depth]
-    
+        
     # Smoothed and average bottom depth
+        
     depth_smooth = move_fun(depth, window_size)
-    depth_roughness = np.round(np.mean(abs(np.diff(depth))), 2)
+    depth_roughness = np.round(np.median(abs(np.diff(depth))), 2)
 
     # Bottom hardness 
     hardness = []
     for i in range(0, echodata.shape[1]):
-        temp = maxval(echodata, surf_offset, 979, i)
+        temp = maxval(echodata, dead_zone, echodata.shape[0] - dead_zone, i)
         hardness.append(temp)
 
     # Smoothed and average bottom hardness        
@@ -177,43 +177,32 @@ def find_bottom(echodata, window_size, surf_offset, bottom_offset, bottom_roughn
     hardness_mean = np.round(np.nanmean(hardness), 2)
 
     # If bottom is weak, change to 97 m 
+    if hardness_mean < -20:
+        bottom_remove = False
     if depth_roughness > bottom_roughness_thresh or hardness_mean < bottom_hardness_thresh:
         for item in range(len(depth_smooth)):
-            #print(len(hardness_smooth))
-            #print(depth_smooth[item])
             if hardness_smooth[item] < -25 :
                 depth_smooth[item] = 970
 
 
-    # Remove Bottom echoes above strongest echo
-    # 20 pixels above bottom removed because of echo-effect near bottom 
-    depth_smooth = [x-bottom_offset for x in depth_smooth]
-    
-    # Remove 4 first and four last pings (columns) 
-    echodata[:, 0:4] = 0 
-    echodata[:, -4:] = 0  
-
-    bottom_remove = True
+    depth_smooth = [x-dead_zone for x in depth_smooth]
 
     if bottom_remove: 
 
         # Remove points under sea floor
         int_list = [int(item) for item in depth_smooth]
         for i in range(0, len(depth_smooth)):
-            echodata[int_list[i]:, 4+(i)] = 0
+            echodata[int_list[i]:,(i)] = 0
 
     return depth_smooth, hardness, depth_roughness, echodata
 
-
-
 # Find and detect waves
-def find_layer(echodata, beam_dead_zone, in_a_row_thresh, layer_quantile, layer_strength_thresh, layer_size_thresh):
+def find_layer(echodata, dead_zone, in_a_row_thresh, layer_quantile, layer_strength_thresh, layer_size_thresh):
 
-    echodata = echodata[beam_dead_zone:]
+    echodata = echodata[dead_zone:]
     in_a_row = 0
 
     for n, row in enumerate(echodata):
-        row = row[4:-4]
         row = row[~np.isnan(row)]
         avg_val = np.quantile(row, layer_quantile)
 
@@ -224,7 +213,7 @@ def find_layer(echodata, beam_dead_zone, in_a_row_thresh, layer_quantile, layer_
             break
 
     if n > layer_size_thresh:
-        layer = n + beam_dead_zone
+        layer = n + dead_zone
         return layer
     else:
         return False
@@ -235,58 +224,40 @@ def find_layer(echodata, beam_dead_zone, in_a_row_thresh, layer_quantile, layer_
 def find_wave_smoothness(waves_list):
     wave_difs = [abs(j-i) for i, j in zip(waves_list[:-1], waves_list[1:])]
     wave_smoothness = sum(wave_difs) / len(waves_list)
-
     return wave_smoothness
 
-def find_waves(echodata, wave_thresh, in_a_row_waves, beam_dead_zone):
-    echodata = np.transpose(echodata)
+def find_waves(echodata, wave_thresh, in_a_row_waves, dead_zone):
 
-    echodata_crop = echodata[:, beam_dead_zone:]
-
-    datas = []
     line = []
 
-    for i, ping in enumerate(echodata_crop):
+    for ping in range(echodata.shape[1]):
+
         in_a_row = 0
         found_limit = False
-        data = []
+  
+        for i in range(echodata.shape[0]):
 
-        for n, val in enumerate(ping):
-            if val < wave_thresh: # Denna ska vi testa andra värden på
+            if echodata[i, ping] < wave_thresh: 
                 in_a_row += 1
             else:
                 in_a_row = 0
 
-            if in_a_row == in_a_row_waves: # även här kan vi testa andra värden
+            if in_a_row == in_a_row_waves: 
                 found_limit = True
-                line.append(n-in_a_row_waves)
-                for x in range(n-in_a_row_waves):
-                    data.append(100)
+                line.append(i-7)
                 break
 
         if not found_limit:
-            line.append(len(ping)-2)
-            for x in range(len(ping)-2):
-                data.append(100)
-
-        datas.append(data)
-
-    line = [i+beam_dead_zone for i in line]
+            line.append(dead_zone)
 
 
-    for i in range(echodata.shape[0]):
-        echodata[i, :line[i]] = 0
+    for ping in range(echodata.shape[1]):
+        echodata[:line[ping], ping] = 0
 
-    echodata = np.transpose(echodata)
-    echodata = echodata[4:-4]
-    
-    line = line[4:-4]
     wave_avg = sum(line) / len(line)
     wave_smoothness = find_wave_smoothness(line)
 
     return echodata, line, wave_avg, wave_smoothness
-
-
 
 
 # Find fish volume - NEW JONAS VERSION
@@ -302,7 +273,8 @@ def find_fish_median(data, waves, ground):
     Returns: 
         sum (numpy.ndarray): a sum for each ping (NASC).
     """
-    np_data = data[4:-4]
+
+    np_data = data
     for i, ping in enumerate(np_data):
         wave_limit = waves[i]
         ground_limit = ground[i]
@@ -340,7 +312,6 @@ def medianfun(x, start, stop):
         fish_depth.append(fishdepth)
     return nascx, fish_depth
 
-
 def save_data(data, filename, save_path, txt_path):
 
     df = pd.DataFrame(data)
@@ -348,4 +319,5 @@ def save_data(data, filename, save_path, txt_path):
 
     with open(txt_path, 'a') as txt_doc:
         txt_doc.write(f'{filename}\n')
+
 
