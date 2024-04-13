@@ -5,7 +5,7 @@ import yaml
 import os
 
 from yaml.loader import SafeLoader
-from functions import process_data, save_data, find_bottom, data_to_images, find_waves2, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
+from functions import process_data, save_data, find_bottom, data_to_images, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
 
 warnings.filterwarnings("ignore")
 
@@ -61,12 +61,12 @@ if files:
                 new_echodatax = new_echodata.copy()
                 layer = find_layer(new_echodatax, params[0]['beam_dead_zone'], params[0]['layer_in_a_row'], params[0]['layer_quantile'], params[0]['layer_strength_thresh'], params[0]['layer_size_thresh'])
                 if layer:
-                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves2(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
+                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
                 else:
-                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves2(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
+                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
 
                     if wave_avg > params[0]['extreme_wave_size']: 
-                        new_echodata, wave_line, wave_avg, wave_smoothness = find_waves2(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
+                        new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
 
                 data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
 
