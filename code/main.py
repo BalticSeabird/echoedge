@@ -69,6 +69,8 @@ if files:
                         new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
 
 
+                data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
+
                 # Find fish cumsum, median depth and inds
                 depthx = [int(d) for d in depth]
                 
@@ -115,8 +117,6 @@ if files:
                     'fish_depth3': fish_depth3, 
                 }
         
-
-                data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
 
                 save_data(data_dict, file.replace('.raw', '.csv'), csv_path, new_processed_files_path)
             except:
