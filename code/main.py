@@ -31,9 +31,8 @@ completed_files = [line for line in completed_txt_file.readlines()]
 completed_files = [file.replace('\n', '') for file in completed_files]
 
 files = [f for f in files if f not in completed_files]
-
+files = files[0:1]
 open(new_processed_files_path, "w").close()
-
 
 if files:
 
@@ -51,9 +50,10 @@ if files:
                 echodata = echodata.Sv.to_numpy()[0]
                 echodata, nan_indicies = remove_vertical_lines(echodata)
                 echodata_swap = np.swapaxes(echodata, 0, 1)
+                nasc_echodata = echodata.copy()
 
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
-
+                data_to_images(echodata_swap, f'/home/jonas/Documents/vscode/echodata/new/echoedge/nasc/nasc_before')
                 # Detect bottom algorithms
                 depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
 
@@ -71,14 +71,13 @@ if files:
                 data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
         
                 # Find fish cumsum, median depth and inds
-                depthx = [int(d) for d in depth]
+                depth = [int(d) for d in depth]
                 
-                nasc = find_fish_median(echodata, wave_line, depthx) 
+                nasc = find_fish_median(nasc_echodata, wave_line, depth, params[0]['dead_zone']) 
                 nasc0, fish_depth0 = medianfun(nasc, params[0]['fish_layer0_start'], params[0]['fish_layer0_end'])
                 nasc1, fish_depth1 = medianfun(nasc, params[0]['fish_layer1_start'], params[0]['fish_layer1_end'])
                 nasc2, fish_depth2 = medianfun(nasc, params[0]['fish_layer2_start'], params[0]['fish_layer2_end'])
                 nasc3, fish_depth3 = medianfun(nasc, params[0]['fish_layer3_start'], params[0]['fish_layer3_end'])
-
 
                 #change from dm to meters 
                 depth = [i*0.1 for i in depth]
@@ -118,7 +117,7 @@ if files:
         
 
                 save_data(data_dict, file.replace('.raw', '.csv'), csv_path, new_processed_files_path)
-        
+             
             except:
                 print(f'Problems with {file}')
 

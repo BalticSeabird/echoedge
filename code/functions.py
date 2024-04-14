@@ -263,7 +263,7 @@ def find_waves(echodata, wave_thresh, in_a_row_waves, beam_dead_zone, depth):
     return echodata, line, wave_avg, wave_smoothness
 
 # Find fish volume - NEW JONAS VERSION
-def find_fish_median(data, waves, ground):
+def find_fish_median(echodata, waves, ground, dead_zone):
     """
     Function to calc the cumulative sum of fish for each ping.
 
@@ -275,43 +275,41 @@ def find_fish_median(data, waves, ground):
     Returns: 
         sum (numpy.ndarray): a sum for each ping (NASC).
     """
-
-    np_data = data
-    for i, ping in enumerate(np_data):
+ 
+    for i, ping in enumerate(echodata):
         wave_limit = waves[i]
         ground_limit = ground[i]
 
-        ping[(ground_limit-16):] = np.nan # lab with - n here
-        ping[:(wave_limit+5)] = np.nan # lab with different + n values here
+        ping[(ground_limit-dead_zone):] = np.nan # Also masking dead zone
+        ping[:(wave_limit)] = np.nan # lab with different + n values here
 
     # calc NASC (Nautical Area Scattering Coefficient - m2nmi-2)1
-    nasc = 4 * np.pi * (1852**2) * (10**(np_data/10)) * 0.1
+    nasc = 4 * np.pi * (1852**2) * (10**(echodata/10)) * 0.1
 
     # nan to zero
     where_are_nans = np.isnan(nasc)
     nasc[where_are_nans] = 0
     
-    # find the total (last value) of the cumulative sum and calc index of mean val
     return nasc
 
 
-def medianfun(x, start, stop):
+def medianfun(nasc, start, stop):
     """
     Function to calculate the median of cumulative sums for each list in the input list.
     It uses nasc outputted from the find_fish_median2 function
     """
     nascx, fish_depth = [], []
-    temp = x.copy()
 
-    for col in temp:
-        col[0:(start*10)] = 0 
-        col[(stop*10):1000] = 0
-        cumsum = np.cumsum(col)
-        totnasc = sum(col)
+    for ping in nasc:
+        ping[0:(start*10)] = 0 
+        ping[(stop*10):1000] = 0
+        cumsum = np.cumsum(ping)
+        totnasc = sum(ping)
         medval = totnasc/2
         fishdepth = np.argmax(cumsum>medval)/10
         nascx.append(totnasc)
         fish_depth.append(fishdepth)
+ 
     return nascx, fish_depth
 
 def save_data(data, filename, save_path, txt_path):
