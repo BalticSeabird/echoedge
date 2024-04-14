@@ -199,9 +199,10 @@ def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, botto
     return depth_smooth, hardness, depth_roughness, echodata
 
 # Find and detect waves
-def find_layer(echodata, dead_zone, in_a_row_thresh, layer_quantile, layer_strength_thresh, layer_size_thresh):
+def find_layer(echodata, beam_dead_zone, in_a_row_thresh, layer_quantile, layer_strength_thresh, layer_size_thresh):
 
-    echodata = echodata[dead_zone:]
+    echodata[np.isnan(echodata)] = 0
+    echodata = echodata[beam_dead_zone:]
     in_a_row = 0
 
     for n, row in enumerate(echodata):
@@ -215,7 +216,7 @@ def find_layer(echodata, dead_zone, in_a_row_thresh, layer_quantile, layer_stren
             break
 
     if n > layer_size_thresh:
-        layer = n + dead_zone
+        layer = n + beam_dead_zone
         return layer
     else:
         return False
@@ -226,28 +227,29 @@ def find_wave_smoothness(waves_list):
     wave_smoothness = sum(wave_difs) / len(waves_list)
     return wave_smoothness
 
-def find_waves(echodata, wave_thresh, in_a_row_waves, beam_dead_zone):
+def find_waves(echodata, wave_thresh, in_a_row_waves, beam_dead_zone, depth):
+
+    echodata[np.isnan(echodata)] = 0
 
     line = []
 
-    for ping in range(echodata.shape[1]):
+    for i, ping in enumerate(echodata.T):
 
         in_a_row = 0
         found_limit = False
 
-        for i in range(beam_dead_zone, echodata.shape[0]):
+        ping_depth = int(depth[i])
+        ping = ping[:ping_depth]
 
-            if echodata[i, ping] < wave_thresh: 
+        for i, value in enumerate(ping):
+            if value < wave_thresh:
                 in_a_row += 1
             else:
-                in_a_row = 0
-
-            if in_a_row == in_a_row_waves: 
-                found_limit = True
-                line.append(i)
+                in_a_row = 0 
+            if in_a_row == in_a_row_waves:
+                found_limit = True 
+                line.append(i-in_a_row)
                 break
-            
-
         if not found_limit:
             line.append(beam_dead_zone)
 
@@ -257,10 +259,8 @@ def find_waves(echodata, wave_thresh, in_a_row_waves, beam_dead_zone):
 
     wave_avg = sum(line) / len(line)
     wave_smoothness = find_wave_smoothness(line)
-
+    
     return echodata, line, wave_avg, wave_smoothness
-
-
 
 # Find fish volume - NEW JONAS VERSION
 def find_fish_median(data, waves, ground):
