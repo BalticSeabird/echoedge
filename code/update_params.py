@@ -1,6 +1,16 @@
 import sys
 import yaml
 import ruamel.yaml
+import serial
+
+
+def get_data_from_sailor(ser_path):
+
+    ser = serial.Serial(ser_path, 9600,timeout=(5),parity=serial.PARITY_NONE)    
+    incoming_string = ser.readline()
+
+    return incoming_string
+
 
 
 def read_incoming_data(input_string):
@@ -77,16 +87,25 @@ def update_yaml_file(changes_dict, path):
         yaml.dump(config, fp)
 
 
-
 if __name__ == '__main__':
+
+    # read incoming params
     params_path = sys.argv[1]
     params_ranges_path = sys.argv[2]
-    incoming_string = sys.argv[3]
+    # incoming_string = sys.argv[3]
+    ser_path = sys.argv[4]
+
+    # read data from serial input (sailor)
+    incoming_string = get_data_from_sailor(ser_path)
+
+    # transform incoming changes to changes in data
     print(incoming_string)
     incoming_changes = read_incoming_data(incoming_string)
     ranges_dict = read_ranges(params_ranges_path)
     ranges_dict = val_incoming_changes(incoming_changes, ranges_dict)
     print(ranges_dict)
+
+    # update params based on incoming changes
     if len(ranges_dict) > 0:
         update_yaml_file(ranges_dict, params_path)
         print('Values are updated.')
