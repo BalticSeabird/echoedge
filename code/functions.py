@@ -152,7 +152,7 @@ def move_fun(x, window_size):
 
 
 
-def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, bottom_hardness_thresh):
+def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, bottom_hardness_thresh, sonar_depth):
 
     bottom_remove = True
     
@@ -176,25 +176,25 @@ def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, botto
     hardness_smooth = move_fun(hardness, window_size)
     hardness_mean = np.round(np.nanmean(hardness), 2)
 
-    # If bottom is weak, change to 97 m 
-    if hardness_mean < -20:
-        bottom_remove = False
     if depth_roughness > bottom_roughness_thresh or hardness_mean < bottom_hardness_thresh:
+        bottom_remove = False
         for item in range(len(depth_smooth)):
             if hardness_smooth[item] < -25 :
-                depth_smooth[item] = 970
+                depth_smooth[item] = 1000-sonar_depth
 
-
-    depth_smooth = [x-dead_zone for x in depth_smooth]
 
     if bottom_remove: 
+
+        depth_smooth = [x-dead_zone for x in depth_smooth]
 
         # Remove points under sea floor
         int_list = [int(item) for item in depth_smooth]
         for i in range(0, len(depth_smooth)):
             echodata[int_list[i]:,(i)] = 0
+
+        depth_smooth = [x+dead_zone for x in depth_smooth]
     
-    depth_smooth = [x+dead_zone for x in depth_smooth]
+    
 
     return depth_smooth, hardness, depth_roughness, echodata
 

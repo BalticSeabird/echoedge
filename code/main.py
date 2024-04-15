@@ -55,7 +55,7 @@ if files:
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
 
                 # Detect bottom algorithms
-                depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
+                depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'], sonar_depth)
 
                 # Find, measure and remove waves in echodata
                 new_echodatax = new_echodata.copy()
