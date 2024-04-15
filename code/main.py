@@ -53,7 +53,7 @@ if files:
                 nasc_echodata = echodata.copy()
 
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
-                data_to_images(echodata_swap, f'/home/jonas/Documents/vscode/echodata/new/echoedge/nasc/nasc_before')
+
                 # Detect bottom algorithms
                 depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
 
