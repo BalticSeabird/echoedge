@@ -6,7 +6,7 @@ import os
 import traceback
 
 from yaml.loader import SafeLoader
-from functions import find_waves, process_data, save_data, find_bottom2, data_to_images, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
+from functions import find_waves, process_data, save_data, find_bottom, data_to_images, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
 
 warnings.filterwarnings("ignore")
 
@@ -32,7 +32,7 @@ completed_files = [line for line in completed_txt_file.readlines()]
 completed_files = [file.replace('\n', '') for file in completed_files]
 
 files = [f for f in files if f not in completed_files]
-
+files = files[50:]
 open(new_processed_files_path, "w").close()
 
 if files:
@@ -55,7 +55,7 @@ if files:
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
 
                 # Detect bottom algorithms
-                depth, hardness, depth_roughness, new_echodata = find_bottom2(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'], sonar_depth)
+                depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'], sonar_depth)
     
                 # Find, measure and remove waves in echodata
                 new_echodatax = new_echodata.copy()
