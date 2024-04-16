@@ -154,7 +154,7 @@ def find_dead_zone(echodata, depth):
     echodata = echodata.T
     echodata_flipped = np.fliplr(echodata)  
     depth = [int(1000-x) for x in depth]
-    depth = [x+5 for x in depth]
+    depth = [x+10 for x in depth]
     dead_zone = []
     
     for i, ping in enumerate(echodata_flipped):
@@ -182,7 +182,8 @@ def find_dead_zone(echodata, depth):
 
         if not found_limit:
             dead_zone.append(20)
-    
+
+    dead_zone = move_fun(dead_zone, 15)
     dead_zone = [int(1000-x) for x in dead_zone]
 
     return dead_zone
