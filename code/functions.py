@@ -162,7 +162,6 @@ def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, botto
         depth.append(temp)
         
     # Smoothed and average bottom depth
-        
     depth_smooth = move_fun(depth, window_size)
     depth_roughness = np.round(np.median(abs(np.diff(depth))), 2)
 
@@ -182,7 +181,6 @@ def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, botto
             if hardness_smooth[item] < -25 :
                 depth_smooth[item] = 1000-sonar_depth
 
-
     if bottom_remove: 
 
         depth_smooth = [x-dead_zone for x in depth_smooth]
@@ -193,8 +191,6 @@ def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, botto
             echodata[int_list[i]:,(i)] = 0
 
         depth_smooth = [x+dead_zone for x in depth_smooth]
-    
-    
 
     return depth_smooth, hardness, depth_roughness, echodata
 
@@ -319,5 +315,4 @@ def save_data(data, filename, save_path, txt_path):
 
     with open(txt_path, 'a') as txt_doc:
         txt_doc.write(f'{filename}\n')
-
 

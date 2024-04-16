@@ -3,6 +3,7 @@ import warnings
 import sys
 import yaml
 import os
+import traceback
 
 from yaml.loader import SafeLoader
 from functions import find_waves, process_data, save_data, find_bottom, data_to_images, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
@@ -50,13 +51,12 @@ if files:
                 echodata = echodata.Sv.to_numpy()[0]
                 echodata, nan_indicies = remove_vertical_lines(echodata)
                 echodata_swap = np.swapaxes(echodata, 0, 1)
-                nasc_echodata = echodata.copy()
-
+      
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
 
                 # Detect bottom algorithms
                 depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'], sonar_depth)
-
+    
                 # Find, measure and remove waves in echodata
                 new_echodatax = new_echodata.copy()
                 layer = find_layer(new_echodatax, params[0]['beam_dead_zone'], params[0]['layer_in_a_row'], params[0]['layer_quantile'], params[0]['layer_strength_thresh'], params[0]['layer_size_thresh'])
@@ -73,7 +73,7 @@ if files:
                 # Find fish cumsum, median depth and inds
                 depth = [int(d) for d in depth]
                 
-                nasc = find_fish_median(nasc_echodata, wave_line, depth, params[0]['dead_zone']) 
+                nasc = find_fish_median(echodata, wave_line, depth, params[0]['dead_zone']) 
                 nasc0, fish_depth0 = medianfun(nasc, params[0]['fish_layer0_start'], params[0]['fish_layer0_end'])
                 nasc1, fish_depth1 = medianfun(nasc, params[0]['fish_layer1_start'], params[0]['fish_layer1_end'])
                 nasc2, fish_depth2 = medianfun(nasc, params[0]['fish_layer2_start'], params[0]['fish_layer2_end'])
@@ -118,7 +118,8 @@ if files:
 
                 save_data(data_dict, file.replace('.raw', '.csv'), csv_path, new_processed_files_path)
              
-            except:
+            except Exception as error:
+                traceback.print_exc()
                 print(f'Problems with {file}')
 
 else:
