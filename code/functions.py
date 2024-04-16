@@ -174,17 +174,17 @@ def find_dead_zone(echodata, depth):
 
             if in_a_row == 3:
                 found_limit = True 
-                if i-depth_i < 20:
+                if i-depth_i < 25:
                     dead_zone.append(i-in_a_row)
                 else:
-                    dead_zone.append(20)
+                    dead_zone.append(25)
                 break
 
         if not found_limit:
             dead_zone.append(20)
 
     dead_zone = move_fun(dead_zone, 15)
-    dead_zone = [int(1000-x) for x in dead_zone]
+    dead_zone = [int(1000-x)-5 for x in dead_zone]
 
     return dead_zone
 
