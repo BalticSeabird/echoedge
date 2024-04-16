@@ -54,7 +54,7 @@ if files:
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
 
                 # Detect bottom algorithms
-                depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
+                depth, hardness, depth_roughness, new_echodata, dead_zone = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
     
                 # Find, measure and remove waves in echodata
                 new_echodatax = new_echodata.copy()
@@ -72,7 +72,7 @@ if files:
                 # Find fish cumsum, median depth and inds
                 depth = [int(d) for d in depth]
                 
-                nasc = find_fish_median(echodata, wave_line, depth, params[0]['dead_zone']) 
+                nasc = find_fish_median(echodata, wave_line, dead_zone) 
                 nasc0, fish_depth0 = medianfun(nasc, params[0]['fish_layer0_start'], params[0]['fish_layer0_end'])
                 nasc1, fish_depth1 = medianfun(nasc, params[0]['fish_layer1_start'], params[0]['fish_layer1_end'])
                 nasc2, fish_depth2 = medianfun(nasc, params[0]['fish_layer2_start'], params[0]['fish_layer2_end'])

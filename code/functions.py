@@ -218,15 +218,18 @@ def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, botto
                 depth_smooth[item] = 1000
 
     if bottom_remove: 
-
         dead_zone = find_dead_zone(echodata, depth_smooth)
-        
         # Remove points under sea floor
         int_list = [int(item) for item in dead_zone]
         for i in range(0, len(dead_zone)):
             echodata[int_list[i]:,(i)] = 0
+    else:
+        dead_zone = []
+        for i in range(len(depth)):
+            dead_zone.append(1000)
 
-    return depth_smooth, hardness, depth_roughness, echodata
+
+    return depth_smooth, hardness, depth_roughness, echodata, dead_zone
 
 # Find and detect waves
 def find_layer(echodata, beam_dead_zone, in_a_row_thresh, layer_quantile, layer_strength_thresh, layer_size_thresh):
@@ -293,7 +296,7 @@ def find_waves(echodata, wave_thresh, in_a_row_waves, beam_dead_zone, depth):
     return echodata, line, wave_avg, wave_smoothness
 
 # Find fish volume - NEW JONAS VERSION
-def find_fish_median(echodata, waves, ground, dead_zone):
+def find_fish_median(echodata, waves, ground):
     """
     Function to calc the cumulative sum of fish for each ping.
 
@@ -310,7 +313,7 @@ def find_fish_median(echodata, waves, ground, dead_zone):
         wave_limit = waves[i]
         ground_limit = ground[i]
 
-        ping[(ground_limit-dead_zone):] = np.nan # Also masking dead zone
+        ping[(ground_limit):] = np.nan # Also masking dead zone
         ping[:(wave_limit)] = np.nan # lab with different + n values here
 
     # calc NASC (Nautical Area Scattering Coefficient - m2nmi-2)1
