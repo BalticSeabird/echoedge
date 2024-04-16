@@ -32,12 +32,11 @@ completed_files = [line for line in completed_txt_file.readlines()]
 completed_files = [file.replace('\n', '') for file in completed_files]
 
 files = [f for f in files if f not in completed_files]
-files = files[25:]
+
 open(new_processed_files_path, "w").close()
 
 if files:
     for file in files:
-        print(file)
         if '.raw' in file:
             try: 
                 with open(completed_files_path, 'a') as txt_doc:

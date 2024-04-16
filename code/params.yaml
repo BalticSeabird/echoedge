@@ -19,7 +19,7 @@ layer_quantile: 0.7
 
 
 bottom_offset: 20
-bottom_hardness_thresh: -20
+bottom_hardness_thresh: -30
 bottom_roughness_thresh: 30
 no_bottom_default: 101
 
