@@ -150,7 +150,42 @@ def move_fun(x, window_size):
     
     return(moving_averages)
 
+def find_dead_zone(echodata, depth):
+    echodata = echodata.T
+    echodata_flipped = np.fliplr(echodata)  
+    depth = [int(1000-x) for x in depth]
+    depth = [x+5 for x in depth]
+    dead_zone = []
+    
+    for i, ping in enumerate(echodata_flipped):
 
+        #Remove bottom and leaving dead zone
+        depth_i = depth[i]
+        ping[:depth[i]] = np.nan
+
+        in_a_row = 0
+        found_limit = False
+
+        for i, value in enumerate(ping):
+            if value < -75:
+                in_a_row += 1
+            else:
+                in_a_row = 0 
+
+            if in_a_row == 3:
+                found_limit = True 
+                if i-depth_i < 20:
+                    dead_zone.append(i-in_a_row)
+                else:
+                    dead_zone.append(20)
+                break
+
+        if not found_limit:
+            dead_zone.append(20)
+    
+    dead_zone = [int(1000-x) for x in dead_zone]
+
+    return dead_zone
 
 def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, bottom_hardness_thresh, sonar_depth):
 
@@ -183,14 +218,12 @@ def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, botto
 
     if bottom_remove: 
 
-        depth_smooth = [x-dead_zone for x in depth_smooth]
-
+        dead_zone = find_dead_zone(echodata, depth_smooth)
+        
         # Remove points under sea floor
-        int_list = [int(item) for item in depth_smooth]
-        for i in range(0, len(depth_smooth)):
+        int_list = [int(item) for item in dead_zone]
+        for i in range(0, len(dead_zone)):
             echodata[int_list[i]:,(i)] = 0
-
-        depth_smooth = [x+dead_zone for x in depth_smooth]
 
     return depth_smooth, hardness, depth_roughness, echodata
 
