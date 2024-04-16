@@ -187,7 +187,7 @@ def find_dead_zone(echodata, depth):
 
     return dead_zone
 
-def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, bottom_hardness_thresh, sonar_depth):
+def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, bottom_hardness_thresh):
 
     bottom_remove = True
     
@@ -214,7 +214,7 @@ def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, botto
         bottom_remove = False
         for item in range(len(depth_smooth)):
             if hardness_smooth[item] < -25 :
-                depth_smooth[item] = 1000-sonar_depth
+                depth_smooth[item] = 1000
 
     if bottom_remove: 
 

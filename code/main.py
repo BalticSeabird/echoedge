@@ -32,12 +32,12 @@ completed_files = [line for line in completed_txt_file.readlines()]
 completed_files = [file.replace('\n', '') for file in completed_files]
 
 files = [f for f in files if f not in completed_files]
-files = files[50:]
+files = files[25:]
 open(new_processed_files_path, "w").close()
 
 if files:
-
     for file in files:
+        print(file)
         if '.raw' in file:
             try: 
                 with open(completed_files_path, 'a') as txt_doc:
@@ -55,7 +55,7 @@ if files:
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
 
                 # Detect bottom algorithms
-                depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'], sonar_depth)
+                depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
     
                 # Find, measure and remove waves in echodata
                 new_echodatax = new_echodata.copy()
@@ -85,7 +85,11 @@ if files:
                 wave_line = [i*0.1 for i in wave_line]
 
                 #adding sonar depth to depth variables 
-                for depth_list in [depth, wave_line, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
+                for i in range(len(depth)):
+                    if depth[i] != 100:
+                        depth[i] += sonar_depth
+                        
+                for depth_list in [wave_line, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
                     for i in range(len(depth_list)):
                         if sum(depth_list)/len(depth_list) != 0:
                             depth_list[i] += sonar_depth
