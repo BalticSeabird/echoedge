@@ -2,6 +2,7 @@ import sys
 import yaml
 import ruamel.yaml
 import serial
+import time
 
 
 def get_data_from_sailor(ser_path):
@@ -12,13 +13,37 @@ def get_data_from_sailor(ser_path):
     return incoming_string
 
 
+def send_values_to_datalogger(message, ser_path):
+
+    # message = str.encode(message) 
+    message = f'{message}\r\n'.encode()
+    ser = serial.Serial(ser_path, 9600,timeout=(5),parity=serial.PARITY_NONE)           
+
+    ser.write(message) # Send message to datalogger
+    time.sleep(1)
+    ser.close()
+
+    return message
+
+
+def send_data(data, filename):
+    
+    message = ''
+    for key, val in data.items():
+        val = round(val, 2)
+        message += f'{val} '
+
+    print(message)
+    send_values_to_datalogger(message, ser_path)
+
+
 
 def read_incoming_data(input_string):
     dict_to_update = {}
 
     input_strings = input_string.split('#')
     for param in input_strings[1:]:
-        params = param.split('=')
+        params = param.split(' ')
 
         if '.' in params[0]:
   
@@ -95,6 +120,9 @@ if __name__ == '__main__':
     # incoming_string = sys.argv[3]
     ser_path = sys.argv[4]
 
+    # send message_transfer_start to irridium
+    send_values_to_datalogger('message_transfer_start', ser_path)
+    time.sleep(3)
     # read data from serial input (sailor)
     incoming_string = get_data_from_sailor(ser_path)
 
