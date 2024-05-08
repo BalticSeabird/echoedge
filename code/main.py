@@ -52,6 +52,7 @@ if files:
                 echodata_swap = np.swapaxes(echodata, 0, 1)
       
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
+                os.remove(f'{img_path}/{new_file_name}_greyscale.png')
 
                 # Detect bottom algorithms
                 depth, hardness, depth_roughness, new_echodata, dead_zone = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
@@ -68,7 +69,8 @@ if files:
                         new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'], depth)
  
                 data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
-        
+                os.remove(f'{img_path}/{new_file_name}_complete_greyscale.png')
+
                 # Find fish cumsum, median depth and inds
                 depth = [int(d) for d in depth]
                 
