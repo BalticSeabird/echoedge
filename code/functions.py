@@ -333,7 +333,9 @@ def medianfun(nasc, start, stop):
     """
     nascx, fish_depth = [], []
 
-    for ping in nasc:
+    nasc_copy = nasc.copy()
+
+    for ping in nasc_copy:
         ping[0:(start*10)] = 0 
         ping[(stop*10):1000] = 0
         cumsum = np.cumsum(ping)
