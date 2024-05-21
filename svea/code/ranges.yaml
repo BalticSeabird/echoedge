@@ -1,0 +1,50 @@
+env_params:
+  temperature: [0, 30] # Temperature in celsius
+  salinity: [30, 40] # Salinity from PPS78 (R gsw_SP_from_C)
+  pressure: [10, 10,5] # Pressure in dBar
+
+
+cal_params:
+  gain_correction: [20, 40] # Center value of gain
+  equialent_beam_angle: [-30, -10] 
+
+
+bin_size: [0.01, 100] # Bin size to average along range in meters (y-axis)
+
+
+layer_strength_thresh: [-90, -70] # Threshold to find layers at the top of the files, signals stronger than threshhold will be considered part of layer
+layer_in_a_row: [1, 10] # Number of signals in a row in one ping that has to be False (smaller than layer_strength_thresh) to stop the find_layer algorithm
+layer_size_thresh: [5, 30]
+layer_quantile: [0, 1] # Which quantile to use when looking at each row to find average echo strength
+
+
+bottom_offset: [10, 25] # Number of pixles to remove at the bottom due to the echo effect from seabeds deeper than 100m
+bottom_hardness_thresh: [-30, -10] # Threshold used to classify bottom. Signal needs to be stronger than threshold to be classified as bottom, if signal is weaker: depth > 100m
+bottom_roughness_thresh: [10, 50] # The mean roughness (the difference in number of bins between the detected bottom in each ping) is not allowed to be greater than this thresh if a bottom is classified in the data file
+no_bottom_default: [90, 110] # Default bottom value if no bottom is found
+
+
+beam_dead_zone: [10, 20] # Size of echosounder near-zone, number of bins to remove at the top of the echodata
+
+
+wave_thresh: [-85, -65] # Threshold to use when looking for waves, echo needs to be stronger than this threshold to be classified as part of wave
+wave_thresh_layer: [-85, -65] # Threshold to use when looking for waves when a layer is existing in the echodata, echo needs to be stronger than this threshold to be classified as part of wave
+extreme_wave_size: [30, 80] # Average wave size limit to consider detected wave as unrealistic big in echodata
+in_a_row_waves: [1, 10] # Number of signals in a row that has to be false (<wave_thresh) to consider wave as finished
+
+
+move_avg_windowsize: [1, 40] # Windowsize to use when calculating moving averages
+
+
+# Start and end values for each fish layer
+fish_layer0_start: [0, 100]
+fish_layer0_end: [0, 100]
+
+fish_layer1_start: [0, 100]
+fish_layer1_end: [0, 100]
+
+fish_layer2_start: [0, 100]
+fish_layer2_end: [0, 100]
+
+fish_layer3_start: [0, 100]
+fish_layer3_end: [0, 100]

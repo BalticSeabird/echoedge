@@ -50,7 +50,7 @@ def process_data(path, env_params, cal_params, bin_size, ping_time_bin='2S', ori
         raw_echodata,
         env_params = env_params,
         cal_params = cal_params,
-        waveform_mode="BB",
+        waveform_mode="CW",
         encode_mode="complex",
     )
 
@@ -347,11 +347,12 @@ def medianfun(nasc, start, stop):
  
     return nascx, fish_depth
 
-def save_data(data, filename, save_path, txt_path):
+def save_data(data, filename, save_path, txt_path=False):
 
     df = pd.DataFrame(data)
     df.to_csv(f'{save_path}/{filename}')
 
-    with open(txt_path, 'a') as txt_doc:
-        txt_doc.write(f'{filename}\n')
+    if txt_path:
+        with open(txt_path, 'a') as txt_doc:
+            txt_doc.write(f'{filename}\n')
 
