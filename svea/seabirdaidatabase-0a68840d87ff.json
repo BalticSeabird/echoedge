@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "seabirdaidatabase",
+  "private_key_id": "0a68840d87ff7f835ffd9ad5d13db0b033397c5f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCJq+40hw7MS6+g\nQ9+DWauSxwg+PoSmdRILS1WVkJVlMXgD9GJPSfcFCLchGCwp/XynztWkll4iNAGT\n8ntdWLCNbC0XsRUS9gqRahMA2H/VD6vdBt84Gx4JjHCVZ40qrIKQTFThnmhvthM+\n9AylS7RUyWQk2mKjXS1Doy6W6emO0x3QwE5uQBN+VkURsk0MZRjvdevK/d+FKDR6\nrK/nwotvhL9JtRgMNO/LD7qSvtHy6JRhilufaZrEiWwRE3GUVZNMAxiMfOMoL/VQ\nmZl+b1tOhCbh3BFBKyV81AlD6h/qKiqB7yBDDpztOzVOTLRYwWtk5clCYfiEWIyV\nzA9aeywjAgMBAAECggEAAuoob2VCm3GoxLhbJZFC8CcVlhfFwC5vVNzh8Xovp4ZO\nF6tXX31d5PXjxqgX20W6G2VmIYdrc8btF6BFG1tS1ZOqOrutigq6e4ym3Vg4EJ81\n0Mah+DKexq35/jfEhdhEJWDwVRyA8oiEzMrm76L0LO1cmOkkuHezCyELzfci0jq/\nDXyD+1SakmhPshK5rLzrFghuBhOIcsLrchsqGyIbYi5acDs5sa3sOcdNTVY7y8V4\n0bEiESyz20o2Z+Y7PrYh1CnQ7PqrYKIgR3ZuZOqQXFTrj3VoeVj9MXh8ipNkxEjj\noTRLkUpUwgWKRpyGk4vWH4UQnulyjMW7ZDJj6NknNQKBgQDBRlPnHAPzo4ledUBD\ng65evBl38ZKKNJJClsKEY8we5rcrAjhMGptWylwlcUwigbvwmcAWJz98H7X8dxom\n+B1yyQyykauE4CpP7KfsMkjHENTbO3LB8Ndq99Kz2ACVIk4Bbh++VkouQjW6qABv\nRr4JKkkJKywMxwxhn1orgKAtZQKBgQC2Wfp6WoWTQpsQyq2tv/SpPDblOeeXrp14\nqoN0P2E/vSicMoQZLSxjdZR6iVFD96D0AnisLn9a4s6CrVJJyl44QhUaGAtUQyHM\nlMyGlGRWREZsst8JP0RoPOxMRu5eSD8SFt5G+K/CRpiRCfeMLv8b3fTTSI2RSqsQ\nrxT47sj+5wKBgF8nCZ2pTETByZqIbTgP92PKhVtowjVqhmtkH6XgIBlCiwEQmbjW\nDI4hGFaSveHrLyTX/Rqq/fVVA1qlJGn1E0J0utybHO9REWPB5jZB11Sx86lvTiMv\nOE8AbWp/OGIzvmWz2srxXpoBnMQle/lMwbhvaf+qkohD4tOZCWKLc9CFAoGAAI0J\nCrGXUbiTy1sxZyL7VD+QUuT35Cds5l5tgz5lxtGFe+NTLthKGArU5gHgMvpejB4t\nyydgzx98TDzF0N9BpZ3dfnSwJBMH2Rxh+c4c933BULbBob+FL2Nvu1NDiRlix2U2\nSrSZo1afQ2DqVIwXzTfAc5r2gofdOHGu+ImQJeUCgYEAsaUXheizjgBKVKcfqOc2\nkd/r76O2AC77FYhpRmgmmn9BhVmkBNdkxo0d3v3w+X1jXLQ2cHjHImBRVb1KZMfi\nUZFU+7aWRCTggsUyZ7he9vG36ef71dWdPlcd8v8uqcM3A8x/C1ibHNFrFZvN2LpP\nzyLPNQGZjIK5vgR9tyCMJR4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "echoedge@seabirdaidatabase.iam.gserviceaccount.com",
+  "client_id": "107640378777303059795",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/echoedge%40seabirdaidatabase.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
