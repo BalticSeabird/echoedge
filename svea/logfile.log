@@ -1,0 +1,15 @@
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [06:51<00:00, 411.03s/it]100%|██████████| 1/1 [06:51<00:00, 411.03s/it]
+D20240521-T220732.raw
+Activated service account credentials for: [echoedge@seabirdaidatabase.iam.gserviceaccount.com]
+CSV_FILE: /home/joakim/Dokument/git/echoedge/svea/out/csv/D20240521-T220732_WBT_741862-15_ES38-7_ES.csv
+Bearbetar fil: /home/joakim/Dokument/git/echoedge/svea/out/csv/D20240521-T220732_WBT_741862-15_ES38-7_ES.csv
+Uploading /home/joakim/Dokument/git/echoedge/svea/out/img/D20240521-T220732_WBT_741862-15_ES38-7_ES_complete.png to gs://svea/
+Copying file:///home/joakim/Dokument/git/echoedge/svea/out/img/D20240521-T220732_WBT_741862-15_ES38-7_ES_complete.png [Content-Type=image/png]...
+/ [0 files][    0.0 B/359.2 KiB]                                                / [1 files][359.2 KiB/359.2 KiB]                                                -
+Operation completed over 1 objects/359.2 KiB.                                    
+Upload of /home/joakim/Dokument/git/echoedge/svea/out/img/D20240521-T220732_WBT_741862-15_ES38-7_ES_complete.png succeeded.
+Uploading /home/joakim/Dokument/git/echoedge/svea/out/img/D20240521-T220732_WBT_741862-15_ES38-7_ES.png to gs://svea/
+Copying file:///home/joakim/Dokument/git/echoedge/svea/out/img/D20240521-T220732_WBT_741862-15_ES38-7_ES.png [Content-Type=image/png]...
+/ [0 files][    0.0 B/377.2 KiB]                                                / [1 files][377.2 KiB/377.2 KiB]                                                -
+Operation completed over 1 objects/377.2 KiB.                                    
+Upload of /home/joakim/Dokument/git/echoedge/svea/out/img/D20240521-T220732_WBT_741862-15_ES38-7_ES.png succeeded.

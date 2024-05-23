@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Add Google Cloud SDK to PATH
-export PATH=$PATH:/Users/joakimeriksson/Documents/GitHub/echoedge/svea/google-cloud-sdk/bin
+export PATH=$PATH:/home/joakim/Dokument/git/echoedge/google-cloud-sdk/bin
 
 # Print PATH to debug
 echo "PATH is: $PATH"
 
 # Check if gcloud exists in the specified path
-if [ ! -f "/Users/joakimeriksson/Documents/GitHub/echoedge/svea/google-cloud-sdk/bin/gcloud" ]; then
-    echo "gcloud not found at /Users/joakimeriksson/Documents/GitHub/echoedge/svea/google-cloud-sdk/bin/gcloud"
+if [ ! -f "/home/joakim/Dokument/git/echoedge/google-cloud-sdk/bin/gcloud" ]; then
+    echo "gcloud not found at /home/joakim/Dokument/git/echoedge/google-cloud-sdk/bin/gcloud"
     exit 1
 fi
 

@@ -166,11 +166,8 @@ def find_bottom_for_svea(echodata, wave_line):
     echodata_original = echodata.copy()
     echodata = echodata[max(wave_line):, :]
     echodata =  median_filter(echodata, size=(30,5))
-    data_to_images(echodata, 'test1')
 
     echodata = np.where(echodata < -50, -90, 0)
-
-    data_to_images(echodata, 'test2')
 
     # Hittar alla max indices
     max_indices = np.argmax(echodata, axis=0)
@@ -189,7 +186,7 @@ def find_bottom_for_svea(echodata, wave_line):
 
     #Om alla pings är tomma efter threhoslding returnerar man nan
     if non_nan_indices.size == 0:
-        max_indices = [np.nan]*echodata_original.shape[1]
+        max_indices = [350]*echodata_original.shape[1]
     else:
         #Interpolerar alla tomma pings som ett resultat efter thresholding
         interp_func_zeros = interp1d(non_nan_indices, non_nan_values, kind='linear', fill_value='extrapolate')

@@ -5,6 +5,7 @@ import yaml
 import os
 import traceback
 import tqdm
+import datetime
 
 from yaml.loader import SafeLoader
 from functions import find_waves, process_data, save_data, get_beam_dead_zone, data_to_images, find_fish_median, medianfun, find_layer, extract_meta_data, find_bottom_for_svea, shorten_list
@@ -32,12 +33,13 @@ completed_files = [file.replace('\n', '') for file in completed_files]
 files = os.listdir(path)
 files = [file for file in files if '.raw' in file]
 files = [f for f in files if f not in completed_files]
-
+files.reverse()
 open(new_processed_files_path, "w").close()
 
 if files:
-    for file in tqdm.tqdm(reversed(files[:1])):
+    for file in tqdm.tqdm((files[:1])): # reversed to run the opposite direction
         try: 
+            print(file)
             
             filepath = f'{path}/{file}'
 
@@ -119,7 +121,8 @@ if files:
                         'nasc3': nasc3,
                         'fish_depth3': fish_depth3,
                         'transmit_type': [transmit[0]] * len(ping_times),
-                        'file': file
+                        'file': file,
+                        'upload_time': [datetime.datetime.now() for i in range(len(ping_times))]
                     }
 
                     # Save data to csv

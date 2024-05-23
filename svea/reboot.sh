@@ -1,8 +1,12 @@
 #!/bin/bash
 
+# MOUNT 
+sudo umount -l /home/joakim/Dokument/shared/drive
+sudo mount -t cifs -o credentials=/home/joakim/.smbcredentials //scifi01.svea.slu.se/temp/ /home/joakim/Dokument/shared/drive 
+
 # DEFINE BASE PATHS
-BASE_DIR_REPO="/Users/joakimeriksson/Documents/GitHub/echoedge/svea"
-BASE_DIR_DATA="/Volumes/temp/AQUA/2024/SPRAS 2024"
+BASE_DIR_REPO="/home/joakim/Dokument/git/echoedge/svea"
+BASE_DIR_DATA="/home/joakim/Dokument/shared/drive/AQUA/2024/SPRAS 2024"
 
 # RUN ECHOSOUNDER ANALYSIS WITH PYTHON
 PARAMS_PATH="$BASE_DIR_REPO/code/params.yaml"
@@ -11,7 +15,7 @@ IMG_PATH="$BASE_DIR_REPO/out/img"
 NEW_FILES_PATH="$BASE_DIR_REPO/code/new_processed_files.txt"
 COMPLETED_FILES_PATH="$BASE_DIR_REPO/code/completed_files.txt"
 
-/Users/joakimeriksson/Documents/GitHub/echoedge/venv/bin/python3.11 $BASE_DIR_REPO/code/main.py "$BASE_DIR_DATA" "$COMPLETED_FILES_PATH" "$NEW_FILES_PATH" "$CSV_PATH" "$PARAMS_PATH" "$IMG_PATH"
+/home/joakim/Dokument/git/echoedge/svea/venv/bin/python3.11 $BASE_DIR_REPO/code/main.py "$BASE_DIR_DATA" "$COMPLETED_FILES_PATH" "$NEW_FILES_PATH" "$CSV_PATH" "$PARAMS_PATH" "$IMG_PATH"
 
 # UPLOAD PROCESSED FILES TO GOOGLE CLOUD STORAGE
 
@@ -20,24 +24,11 @@ BUCKET_NAME="svea"
 SERVICE_ACCOUNT_KEY="$BASE_DIR_REPO/seabirdaidatabase-0a68840d87ff.json"
 TEMP_FILE=$(mktemp)
 
-# Load credentials from the credentials file
-source "$BASE_DIR_REPO/credentials.sh"
+# SQL variables
+source $BASE_DIR_REPO/credentials.sh
 
 # Add Google Cloud SDK to PATH
-export PATH=$PATH:/Users/joakimeriksson/Documents/GitHub/echoedge/svea/google-cloud-sdk/bin
-
-# Ensure gcloud is available
-if ! command -v gcloud &> /dev/null; then
-    echo "gcloud command not found. Please ensure Google Cloud SDK is installed and gcloud is in your PATH."
-    exit 1
-fi
-
-# Ensure mysql is available
-if ! command -v mysql &> /dev/null; then
-    echo "mysql command not found. Please ensure MySQL client is installed and mysql is in your PATH."
-    exit 1
-fi
-
+export PATH=$PATH:/home/joakim/Dokument/git/echoedge/google-cloud-sdk/bin
 
 # Authenticate with Google Cloud service account key
 gcloud auth activate-service-account --key-file="$SERVICE_ACCOUNT_KEY"
@@ -46,19 +37,19 @@ gcloud auth activate-service-account --key-file="$SERVICE_ACCOUNT_KEY"
 while IFS= read -r line; do
 
     CSV_FILE="$CSV_PATH/$line"
-    
+    echo "CSV_FILE: $CSV_FILE"
     # Kontrollera om CSV-filen existerar
     if [[ -f $CSV_FILE ]]; then
         echo "Bearbetar fil: $CSV_FILE"
         
         # Läs CSV-filen rad för rad, hoppa över header-raden
-        tail -n +2 "$CSV_FILE" | awk -F, '{OFS=","; $1=""; sub(/^,/, ""); print}' | while IFS=, read -r time lat lon depth wave_depth nasc0 fish_depth0 nasc1 fish_depth1 nasc2 fish_depth2 nasc3 fish_depth3 transmit_type file; do
+        tail -n +2 "$CSV_FILE" | awk -F, '{OFS=","; $1=""; sub(/^,/, ""); print}' | while IFS=, read -r time lat lon depth wave_depth nasc0 fish_depth0 nasc1 fish_depth1 nasc2 fish_depth2 nasc3 fish_depth3 transmit_type file upload_time; do
             
             # SQL-fråga för att infoga data i tabellen
-            SQL_QUERY="INSERT INTO svea (time, lat, lon, depth, wave_depth, nasc0, fish_depth0, nasc1, fish_depth1, nasc2, fish_depth2, nasc3, fish_depth3, transmit_type, file) VALUES ('$time', '$lat', '$lon', '$depth', '$wave_depth', '$nasc0', '$fish_depth0', '$nasc1', '$fish_depth1', '$nasc2', '$fish_depth2', '$nasc3', '$fish_depth3', '$transmit_type', '$file');"
+            SQL_QUERY="INSERT INTO svea (time, lat, lon, depth, wave_depth, nasc0, fish_depth0, nasc1, fish_depth1, nasc2, fish_depth2, nasc3, fish_depth3, transmit_type, file, upload_time) VALUES ('$time', '$lat', '$lon', '$depth', '$wave_depth', '$nasc0', '$fish_depth0', '$nasc1', '$fish_depth1', '$nasc2', '$fish_depth2', '$nasc3', '$fish_depth3', '$transmit_type', '$file', '$upload_time');"
 
             # Använd mysql-kommandot för att köra SQL-frågan
-            mysql --host=$HOST --user=$USER --password=$PASSWORD --database=$DATABASE_NAME --execute="$SQL_QUERY"
+            mariadb --host=$HOST --user=$USER --password=$PASSWORD --database=$DATABASE_NAME --execute="$SQL_QUERY"
             
             # Kontrollera om kommandot lyckades
             if [[ $? -ne 0 ]]; then
@@ -79,7 +70,7 @@ while IFS= read -r line; do
         # Upload the first file to Google Cloud Storage bucket
         echo "Uploading $FILE1 to gs://$BUCKET_NAME/"
 
-        if gcloud alpha storage cp "$FILE1" "gs://$BUCKET_NAME/"; then
+        if gsutil cp "$FILE1" "gs://$BUCKET_NAME/"; then
             echo "Upload of $FILE1 succeeded."
         else
             echo "Upload of $FILE1 failed."
@@ -91,7 +82,7 @@ while IFS= read -r line; do
         # Upload the second file to Google Cloud Storage bucket
         echo "Uploading $FILE2 to gs://$BUCKET_NAME/"
 
-        if gcloud alpha storage cp "$FILE2" "gs://$BUCKET_NAME/"; then
+        if gsutil cp "$FILE2" "gs://$BUCKET_NAME/"; then
             echo "Upload of $FILE2 succeeded."
         else
             echo "Upload of $FILE2 failed."
