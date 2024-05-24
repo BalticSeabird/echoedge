@@ -1,6 +1,8 @@
 import time
 import sys
+import os
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from src.serial_communication.send_vals_to_datalogger import send_values_to_datalogger, read_txt_file, calc_mean_and_send_data
 

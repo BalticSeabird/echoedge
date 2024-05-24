@@ -33,7 +33,7 @@ extreme_wave_size: 70
 in_a_row_waves: 3
 
 
-move_avg_windowsize: 9
+move_avg_windowsize: 50
 
 
 fish_layer0_start: 0
