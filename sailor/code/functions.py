@@ -50,7 +50,7 @@ def process_data(path, env_params, cal_params, bin_size, ping_time_bin='2S', ori
         raw_echodata,
         env_params = env_params,
         cal_params = cal_params,
-        waveform_mode="CW",
+        waveform_mode="BB",
         encode_mode="complex",
     )
 
