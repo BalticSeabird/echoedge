@@ -5,7 +5,7 @@
 # sudo mount -t cifs -o credentials=/home/joakim/.smbcredentials //scifi01.svea.slu.se/temp/ /home/joakim/Dokument/shared/drive 
 
 # DEFINE BASE PATHS
-BASE_DIR_REPO="edge/svea"
+BASE_DIR_REPO="/Users/joakimeriksson/Documents/GitHub/echoedge/edge/svea"
 BASE_DIR_DATA="/Volumes/temp/AQUA/2024/SPRAS 2024"
 
 # RUN ECHOSOUNDER ANALYSIS WITH PYTHON
@@ -15,7 +15,7 @@ IMG_PATH="$BASE_DIR_REPO/out/img"
 NEW_FILES_PATH="$BASE_DIR_REPO/new_processed_files.txt"
 COMPLETED_FILES_PATH="$BASE_DIR_REPO/completed_files.txt"
 
-venv/bin/python3.11 $BASE_DIR_REPO/main.py "$BASE_DIR_DATA" "$COMPLETED_FILES_PATH" "$NEW_FILES_PATH" "$CSV_PATH" "$PARAMS_PATH" "$IMG_PATH"
+/Users/joakimeriksson/Documents/GitHub/echoedge/venv/bin/python3.11 $BASE_DIR_REPO/main.py "$BASE_DIR_DATA" "$COMPLETED_FILES_PATH" "$NEW_FILES_PATH" "$CSV_PATH" "$PARAMS_PATH" "$IMG_PATH"
 
 # UPLOAD PROCESSED FILES TO GOOGLE CLOUD STORAGE
 
@@ -38,26 +38,26 @@ while IFS= read -r line; do
 
     CSV_FILE="$CSV_PATH/$line"
     echo "CSV_FILE: $CSV_FILE"
-    # Kontrollera om CSV-filen existerar
+    # Check if csv file exists
     if [[ -f $CSV_FILE ]]; then
-        echo "Bearbetar fil: $CSV_FILE"
+        echo "Parsing file: $CSV_FILE"
         
-        # Läs CSV-filen rad för rad, hoppa över header-raden
+        # Read CSV-file row for row, skip header-row
         tail -n +2 "$CSV_FILE" | awk -F, '{OFS=","; $1=""; sub(/^,/, ""); print}' | while IFS=, read -r time lat lon depth wave_depth nasc0 fish_depth0 nasc1 fish_depth1 nasc2 fish_depth2 nasc3 fish_depth3 transmit_type file upload_time; do
             
-            # SQL-fråga för att infoga data i tabellen
+            # SQL-question to insert data into table
             SQL_QUERY="INSERT INTO svea (time, lat, lon, depth, wave_depth, nasc0, fish_depth0, nasc1, fish_depth1, nasc2, fish_depth2, nasc3, fish_depth3, transmit_type, file, upload_time) VALUES ('$time', '$lat', '$lon', '$depth', '$wave_depth', '$nasc0', '$fish_depth0', '$nasc1', '$fish_depth1', '$nasc2', '$fish_depth2', '$nasc3', '$fish_depth3', '$transmit_type', '$file', '$upload_time');"
 
-            # Använd mysql-kommandot för att köra SQL-frågan
+            # Use mysql-command to run SQL-question
             mariadb --host=$HOST --user=$USER --password=$PASSWORD --database=$DATABASE_NAME --execute="$SQL_QUERY"
             
-            # Kontrollera om kommandot lyckades
+            # Check if command succeeded
             if [[ $? -ne 0 ]]; then
-                echo "Fel vid infogning av data från $CSV_FILE"
+                echo "Error when inserting data from $CSV_FILE"
             fi
         done
     else
-        echo "Filen $CSV_FILE finns inte."
+        echo "File $CSV_FILE does not exist."
     fi
 
     # Generate the two filenames based on the line
