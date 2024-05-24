@@ -1,4 +1,4 @@
-#!/home/joakim/Dokument/git/echoedge/venv/bin/python3
+#!/Users/joakimeriksson/Documents/GitHub/echoedge/new/venv/bin/python3.11
 
 import sys
 import json
