@@ -120,116 +120,85 @@ def data_to_images(data, filepath='', make_wider=False):
 
 
 
-# Find bottom
-def maxecho(x, start, end, i):
-    x = x[start:end,(i)]
-    maxval = max(x)
-    echodepth = (np.argmax(x==maxval)+start)
-    return echodepth
+def moving_average(data, window_size):
+    series = pd.Series(data)
+    moving_averages = series.rolling(window=window_size, center=True, min_periods=1).mean()
+    return  moving_averages.tolist()
 
-def maxval(x, start, end, i):
-    x = x[start:end,(i)]
-    maxval = max(x)
-    return maxval
+def interpolate_nan(lst, depth_if_all_nan):
 
-def move_fun(x, window_size): 
-    # Padd the list with values 
-    padding = window_size // 2 if window_size % 2 == 1 else window_size // 2 - 1
-    x = x[:padding] + x + x[-padding:]
+    arr = np.array(lst)
+    nan_indices = np.isnan(arr)
+    non_nan_indices = np.arange(len(arr))[~nan_indices]
 
-    i = 0
-    moving_averages = [] 
-    
-    #moving averages by window size
-    while i < len(x) - window_size + 1: 
-        
-        window = x[i : i + window_size] 
-        window_average = np.median(window) 
-        moving_averages.append(window_average) 
-        i += 1
-    
-    return(moving_averages)
+    if len(non_nan_indices) == 0:
+        return [depth_if_all_nan] * len(arr)
 
-def find_dead_zone(echodata, depth):
-    echodata = echodata.T
-    echodata_flipped = np.fliplr(echodata)  
-    depth = [int(1000-x) for x in depth]
-    depth = [x+10 for x in depth]
-    dead_zone = []
-    
-    for i, ping in enumerate(echodata_flipped):
+    # Interpolate NaN values using linear interpolation
+    arr[nan_indices] = np.interp(np.arange(len(arr))[nan_indices], non_nan_indices, arr[non_nan_indices])
 
-        #Remove bottom and leaving dead zone
-        depth_i = depth[i]
-        ping[:depth[i]] = np.nan
+    return arr.tolist()
 
-        in_a_row = 0
-        found_limit = False
+def replace_outliers_with_nan(data):
 
-        for i, value in enumerate(ping):
-            if value < -75:
-                in_a_row += 1
-            else:
-                in_a_row = 0 
+    def detect_outliers(data, threshold=3):
+        mean = np.mean(data)
+        std_dev = np.std(data)
+        z_scores = [(x - mean) / std_dev for x in data]
+        return np.abs(z_scores) > threshold
 
-            if in_a_row == 3:
-                found_limit = True 
-                if i-depth_i < 25:
-                    dead_zone.append(i-in_a_row)
-                else:
-                    dead_zone.append(25)
-                break
+    outliers_mask = detect_outliers(data)
+    data = np.asarray(data, dtype=float)
+    data[outliers_mask] = np.nan
 
-        if not found_limit:
-            dead_zone.append(20)
+    return data
 
-    dead_zone = move_fun(dead_zone, 15)
-    dead_zone = [int(1000-x)-5 for x in dead_zone]
 
-    return dead_zone
+def get_beam_dead_zone(echodata):
+    echodata[np.isnan(echodata)] = 0
+    row_sums = np.mean(echodata, axis=1).tolist()
+    for i, row in enumerate(row_sums):
+        if row == row:
+            if row < (-50):
+                return i
 
-def find_bottom(echodata, window_size, dead_zone, bottom_roughness_thresh, bottom_hardness_thresh):
+def find_bottom(echodata, window_size):
+    echodata_original = echodata.copy()
+    #Get dead zone and slice it out from echodata
+    dead_zone = get_beam_dead_zone(echodata) 
+    echodata = echodata[dead_zone:, :] 
 
-    bottom_remove = True
-    
-    depth = []
-    for i in range(0, echodata.shape[1]):
-        temp = maxecho(echodata, dead_zone, echodata.shape[0] - dead_zone, i)
-        depth.append(temp)
-        
-    # Smoothed and average bottom depth
-    depth_smooth = move_fun(depth, window_size)
-    depth_roughness = np.round(np.median(abs(np.diff(depth))), 2)
+    #Finds the maxecho and depth
+    depth = np.argmax(echodata, axis=0) 
+    hardness = echodata[depth, np.arange(echodata.shape[1])]
 
-    # Bottom hardness 
-    hardness = []
-    for i in range(0, echodata.shape[1]):
-        temp = maxval(echodata, dead_zone, echodata.shape[0] - dead_zone, i)
-        hardness.append(temp)
+    #Finding weak pings
+    weak_ping_mask = np.isnan(np.where(hardness < -30, np.nan, depth))
+    #Findind outliers and set them to nan
+    depth = replace_outliers_with_nan(np.where(hardness < -30, echodata.shape[0], depth) )
+    #Setting weak pings as nan as well
+    depth[weak_ping_mask] = np.nan
 
-    # Smoothed and average bottom hardness        
-    hardness_smooth = move_fun(hardness, window_size)
-    hardness_mean = np.round(np.nanmean(hardness), 2)
-
-    if depth_roughness > bottom_roughness_thresh or hardness_mean < bottom_hardness_thresh:
-        bottom_remove = False
-        for item in range(len(depth_smooth)):
-            if hardness_smooth[item] < -25 :
-                depth_smooth[item] = 1000
-
-    if bottom_remove: 
-        dead_zone = find_dead_zone(echodata, depth_smooth)
-        # Remove points under sea floor
-        int_list = [int(item) for item in dead_zone]
-        for i in range(0, len(dead_zone)):
-            echodata[int_list[i]:,(i)] = 0
+    #calculating roughness on the values that aren't nan, if there aren't a bottom, depth roughness will be 0
+    non_nan_depth = depth[~np.isnan(depth)]
+    if len(non_nan_depth) == 0:
+        depth_roughness = 0
     else:
-        dead_zone = []
-        for i in range(len(depth)):
-            dead_zone.append(1000)
+        depth_roughness = np.round(np.median(np.abs(np.diff(non_nan_depth))), 2)
 
+    #interpolating nan values and smoothing
+    depth = interpolate_nan(depth, echodata.shape[0])
+    depth = moving_average(depth , window_size)
 
-    return depth_smooth, hardness, depth_roughness, echodata, dead_zone
+    #Taking upper deadzone that was sliced to account and adding bottom deadzone to depth
+    depth = [int(item + dead_zone) for item in depth]
+    depth = [item - 30 if item != echodata_original.shape[0] else item for item in depth]
+
+    #Removing the bottom
+    for i in range(0, len(depth)):
+        echodata_original[depth[i]:,(i)] = 0
+
+    return depth, hardness, depth_roughness, echodata_original
 
 # Find and detect waves
 def find_layer(echodata, beam_dead_zone, in_a_row_thresh, layer_quantile, layer_strength_thresh, layer_size_thresh):
@@ -260,9 +229,11 @@ def find_wave_smoothness(waves_list):
     wave_smoothness = sum(wave_difs) / len(waves_list)
     return wave_smoothness
 
-def find_waves(echodata, wave_thresh, in_a_row_waves, beam_dead_zone, depth):
+def find_waves(echodata, wave_thresh, in_a_row_waves, depth):
 
     echodata[np.isnan(echodata)] = 0
+
+    dead_zone = get_beam_dead_zone(echodata)
 
     line = []
 
@@ -271,8 +242,8 @@ def find_waves(echodata, wave_thresh, in_a_row_waves, beam_dead_zone, depth):
         in_a_row = 0
         found_limit = False
 
-        ping_depth = int(depth[i])
-        ping = ping[:ping_depth]
+        #Removing upper deadzone and bottom from echodata
+        ping = ping[dead_zone:int(depth[i])]
 
         for i, value in enumerate(ping):
             if value < wave_thresh:
@@ -281,12 +252,12 @@ def find_waves(echodata, wave_thresh, in_a_row_waves, beam_dead_zone, depth):
                 in_a_row = 0 
             if in_a_row == in_a_row_waves:
                 found_limit = True 
-                line.append(i-in_a_row)
+                line.append(i-in_a_row+dead_zone)
                 break
         if not found_limit:
-            line.append(beam_dead_zone)
+            line.append(dead_zone)
 
-
+    line = [wave + 1 for wave in line]
     for ping in range(echodata.shape[1]):
         echodata[:line[ping], ping] = 0
 

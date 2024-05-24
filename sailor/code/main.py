@@ -37,6 +37,7 @@ open(new_processed_files_path, "w").close()
 
 if files:
     for file in files:
+        print(file)
         if '.raw' in file:
             try: 
                 with open(completed_files_path, 'a') as txt_doc:
@@ -50,23 +51,23 @@ if files:
                 echodata = echodata.Sv.to_numpy()[0]
                 echodata, nan_indicies = remove_vertical_lines(echodata)
                 echodata_swap = np.swapaxes(echodata, 0, 1)
-      
+
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
                 os.remove(f'{img_path}/{new_file_name}_greyscale.png')
 
                 # Detect bottom algorithms
-                depth, hardness, depth_roughness, new_echodata, dead_zone = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
-    
+                depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'])
+
                 # Find, measure and remove waves in echodata
                 new_echodatax = new_echodata.copy()
                 layer = find_layer(new_echodatax, params[0]['beam_dead_zone'], params[0]['layer_in_a_row'], params[0]['layer_quantile'], params[0]['layer_strength_thresh'], params[0]['layer_size_thresh'])
                 if layer:
-                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'], depth)
+                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], depth)
                 else:
-                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'], depth)
+                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], depth)
 
                     if wave_avg > params[0]['extreme_wave_size']: 
-                        new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'], depth)
+                        new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], depth)
  
                 data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
                 os.remove(f'{img_path}/{new_file_name}_complete_greyscale.png')
@@ -74,16 +75,16 @@ if files:
                 # Find fish cumsum, median depth and inds
                 depth = [int(d) for d in depth]
                 
-                nasc = find_fish_median(echodata, wave_line, dead_zone) 
+                nasc = find_fish_median(echodata, wave_line, depth) 
                 nasc0, fish_depth0 = medianfun(nasc, params[0]['fish_layer0_start'], params[0]['fish_layer0_end'])
                 nasc1, fish_depth1 = medianfun(nasc, params[0]['fish_layer1_start'], params[0]['fish_layer1_end'])
                 nasc2, fish_depth2 = medianfun(nasc, params[0]['fish_layer2_start'], params[0]['fish_layer2_end'])
                 nasc3, fish_depth3 = medianfun(nasc, params[0]['fish_layer3_start'], params[0]['fish_layer3_end'])
 
                 #change from dm to meters 
-                depth = [i*0.1 for i in depth]
-                depth_roughness = 0.1*depth_roughness
-                wave_line = [i*0.1 for i in wave_line]
+                depth = [i*0.1 for i in depth if i != 0]
+                depth_roughness = round(0.1 * depth_roughness if depth_roughness != 0 else 0, 2)
+                wave_line = [i*0.1 for i in wave_line if i != 0]
 
                 #adding sonar depth to depth variables 
                 for i in range(len(depth)):
@@ -126,6 +127,7 @@ if files:
             except Exception as error:
                 traceback.print_exc()
                 print(f'Problems with {file}')
+                continue
 
 else:
     print('All exising files already processed and analyzed.')
