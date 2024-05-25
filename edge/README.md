@@ -4,3 +4,5 @@ This folder includes subfolders with deifferent edge devices. Different edge dev
 * Sailor
 * R/V Svea
 It is possible to run the same packages on similar sailing drones and research vessels. With that said, it is probably necessary to create new strcutures for other edge devices like different vessels. 
+
+Each subfolder with a different edge device includes scripts, config-files and a bash-script which is supposed to control the entire process. 
