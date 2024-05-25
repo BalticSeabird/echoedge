@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # MOUNT 
-# sudo umount -l /home/joakim/Dokument/shared/drive
-# sudo mount -t cifs -o credentials=/home/joakim/.smbcredentials //scifi01.svea.slu.se/temp/ /home/joakim/Dokument/shared/drive 
+sudo umount -l /home/joakim/Dokument/shared/drive
+sudo mount -t cifs -o credentials=/home/joakim/.smbcredentials //scifi01.svea.slu.se/temp/ /home/joakim/Dokument/shared/drive 
 
 # DEFINE BASE PATHS
 BASE_DIR_REPO="/home/joakim/Dokument/git-new/echoedge/edge/svea"
