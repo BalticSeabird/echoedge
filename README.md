@@ -23,4 +23,25 @@ pip3 install -r requirements.txt
 ```
 
 
-### Structure
+## Structure
+```
+echoedge/
+├── edge/
+│   ├── sailor/
+│   └── svea/
+├── postprocessing/
+│   ├── SPRAS_2024/
+│   └── subfolder-per-survey/
+├── src/
+│    ├── serial_communication/
+│    ├── processing.py
+│    ├── find_fish.py
+│    └── visualization.py
+├── .gitignore
+├── requirements.txt
+└── README.md
+```
+
+
+## Ackownledgements
+* The processing of the raw-files from the echosounder is based on the [Echopype](https://echopype.readthedocs.io/en/stable/) library. 
