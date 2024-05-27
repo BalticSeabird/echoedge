@@ -9,14 +9,12 @@ import datetime
 
 from yaml.loader import SafeLoader
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
-from src.processing import process_data, extract_meta_data
-from src.find_bottom import get_beam_dead_zone, find_bottom_for_svea
-from src.find_fish import find_fish_median, medianfun
-from src.find_waves import find_waves, find_layer
-from src.visualization import data_to_images
-from src.export_data import save_data, shorten_list
+from processing import process_data, extract_meta_data
+from find_bottom import get_beam_dead_zone, find_bottom_for_svea
+from find_fish import find_fish_median, medianfun
+from find_waves import find_waves, find_layer
+from visualization import data_to_images
+from export_data import save_data, shorten_list
 
 warnings.filterwarnings("ignore")
 

@@ -2,9 +2,7 @@ import sys
 import time
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
-from src.serial_communication.params_update import get_data_from_sailor, send_values_to_datalogger, read_ranges, val_incoming_changes, read_incoming_data, update_yaml_file
+from serial_communication.params_update import get_data_from_sailor, send_values_to_datalogger, read_ranges, val_incoming_changes, read_incoming_data, update_yaml_file
 
 
 if __name__ == '__main__':

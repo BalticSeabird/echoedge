@@ -6,12 +6,12 @@ import os
 import traceback
 
 from yaml.loader import SafeLoader
-from src.find_bottom import find_bottom, find_dead_zone
-from src.export_data import save_data
-from src.find_fish import find_fish_median, medianfun
-from src.visualization import data_to_images
-from src.processing import process_data, clean_times, remove_vertical_lines
-from src.find_waves import find_waves, find_layer
+from find_bottom import find_bottom, find_dead_zone
+from export_data import save_data
+from find_fish import find_fish_median, medianfun
+from visualization import data_to_images
+from processing import process_data, clean_times, remove_vertical_lines
+from find_waves import find_waves, find_layer
 
 warnings.filterwarnings("ignore")
 
