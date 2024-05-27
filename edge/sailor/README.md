@@ -1,5 +1,5 @@
 # Echoedge
-Repo with code and instructions on how to run echodata processing and analysis on Sailor. 
+This page includes code and instructions on how to run echoedge processing and analysis on Sailor. 
 
 ![Sailor](https://www.slu.se/globalassets/ew/org/inst/aqua/externwebb/om-oss/forskningsinfrastruktur/aquasailor-jhentati-300.jpg?width=480&height=480&mode=crop&upscale=false&format=webp)
 
@@ -31,12 +31,13 @@ Release:	12
 Codename:	bookworm
 ```
 
-##### Clone this git repo and create a virtual environment in Python
+##### Clone this git repo and create a virtual environment in Python (if you haven't followed the instructions on the first page)
 ```Shell
 git clone https://github.com/aidotsejoakim/echoedge
 cd echoedge
 python3 -m venv venv
 source venv/bin/activate
+pip3 install -r requirements.txt
 ```
 
 ##### Install necessary packages
@@ -44,8 +45,13 @@ source venv/bin/activate
 sudo apt-get install libhdf5-serial-dev netcdf-bin libnetcdf-dev
 sudo apt-get install libatlas-base-dev
 sudo apt-get install libopenblas-dev
-pip3 install -r requirements.txt
 ```
+
+##### Go to this folder
+```
+cd edge/sailor
+```
+
 
 ##### Update `reboot.sh` with correct paths, both when defining variables and when running python-scripts
 ```Shell
