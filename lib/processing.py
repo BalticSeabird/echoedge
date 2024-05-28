@@ -45,8 +45,6 @@ def extract_meta_data(path):
 
     return raw_echodata, channels, longitude, latitude, transmit_type
 
-
-
 def process_data(path, env_params, cal_params, bin_size, waveform, ping_time_bin='2S'):
     """
     Env_params : dictionary with water temperature in degree C, salinity, pressure in dBar
@@ -56,8 +54,9 @@ def process_data(path, env_params, cal_params, bin_size, waveform, ping_time_bin
     run swap_chan. Returns NetCDF object (xarray.core.dataset.Dataset). 
     """
 
-    raw_echodata = ep.open_raw(path, sonar_model="EK80", use_swap=True)
-
+    if '.raw' in path:
+        raw_echodata = ep.open_raw(path, sonar_model="EK80")
+    
     ds_Sv_raw = ep.calibrate.compute_Sv(
         raw_echodata,
         env_params = env_params,
@@ -72,11 +71,12 @@ def process_data(path, env_params, cal_params, bin_size, waveform, ping_time_bin
         ping_time_bin=ping_time_bin # bin size to average along ping_time in seconds
     )
 
+
     ds_MVBS = ds_MVBS.pipe(swap_chan)
     ping_times = ds_MVBS.Sv.ping_time.values
     return ds_MVBS, ping_times
 
-
+        
 def clean_times(ping_times, nan_indicies):
     mask = np.ones(ping_times.shape, dtype=bool)
     mask[nan_indicies] = False

@@ -5,6 +5,8 @@ import yaml
 import os
 import traceback
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../src'))
+
 from yaml.loader import SafeLoader
 from find_bottom import find_bottom, find_dead_zone
 from export_data import save_data
@@ -27,7 +29,6 @@ completed_files_path = sys.argv[2]
 new_processed_files_path = sys.argv[3]
 csv_path = sys.argv[4]
 img_path = sys.argv[6]
-sonar_depth = 0.53
 
 
 files = os.listdir(path)
@@ -52,7 +53,7 @@ if files:
                 new_file_name = filepath.split('/')[-1].replace('.raw', '')
 
                 # Load and process the raw data files
-                echodata, ping_times = process_data(filepath, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'])
+                echodata, ping_times = process_data(filepath, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'], 'BB')
                 echodata = echodata.Sv.to_numpy()[0]
                 echodata, nan_indicies = remove_vertical_lines(echodata)
                 echodata_swap = np.swapaxes(echodata, 0, 1)
@@ -67,12 +68,12 @@ if files:
                 new_echodatax = new_echodata.copy()
                 layer = find_layer(new_echodatax, params[0]['beam_dead_zone'], params[0]['layer_in_a_row'], params[0]['layer_quantile'], params[0]['layer_strength_thresh'], params[0]['layer_size_thresh'])
                 if layer:
-                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], depth)
+                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
                 else:
-                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], depth)
+                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
 
                     if wave_avg > params[0]['extreme_wave_size']: 
-                        new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], depth)
+                        new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
  
                 data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
                 os.remove(f'{img_path}/{new_file_name}_complete_greyscale.png')
@@ -94,12 +95,12 @@ if files:
                 #adding sonar depth to depth variables 
                 for i in range(len(depth)):
                     if depth[i] != 100:
-                        depth[i] += sonar_depth
+                        depth[i] += params[0]['sonar_depth']
                         
                 for depth_list in [wave_line, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
                     for i in range(len(depth_list)):
                         if sum(depth_list)/len(depth_list) != 0:
-                            depth_list[i] += sonar_depth
+                            depth_list[i] += params[0]['sonar_depth']
 
                 #round values to two decimal places
                 for list in [depth, hardness, wave_line, nasc0, nasc1, nasc2, nasc3, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
