@@ -5,15 +5,8 @@ import yaml
 import os
 import traceback
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../lib'))
-
 from yaml.loader import SafeLoader
-from find_bottom import find_bottom
-from export_data import save_data
-from find_fish import find_fish_median, medianfun
-from visualization import data_to_images
-from processing import process_data, clean_times, remove_vertical_lines
-from find_waves import find_waves, find_layer
+from new_functions import find_waves, process_data, save_data, find_bottom, data_to_images, find_fish_median, medianfun, find_layer, remove_vertical_lines, clean_times
 
 warnings.filterwarnings("ignore")
 
@@ -29,9 +22,28 @@ completed_files_path = sys.argv[2]
 new_processed_files_path = sys.argv[3]
 csv_path = sys.argv[4]
 img_path = sys.argv[6]
+sonar_depth = 0.53
 
 
 files = os.listdir(path)
+files = [
+    'SLUAquaSailor2020V2-Phase0-D20210428-T211100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210428-T212100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210428-T220128-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210505-T013129-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210509-T205100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210509-T210100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210510-T044100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210510-T052100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210510-T065128-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210510-T104100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210510-T204059-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210511-T024100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210511-T051100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210511-T141100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210511-T152100-0.raw',
+    'SLUAquaSailor2020V2-Phase0-D20210518-T005100-0.raw'
+]
 
 completed_txt_file = open(completed_files_path, 'r')
 completed_files = [line for line in completed_txt_file.readlines()]
@@ -43,7 +55,6 @@ open(new_processed_files_path, "w").close()
 
 if files:
     for file in files:
-        print(file)
         if '.raw' in file:
             try: 
                 with open(completed_files_path, 'a') as txt_doc:
@@ -53,27 +64,27 @@ if files:
                 new_file_name = filepath.split('/')[-1].replace('.raw', '')
 
                 # Load and process the raw data files
-                echodata, ping_times = process_data(filepath, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'], 'BB')
+                echodata, ping_times = process_data(filepath, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'])
                 echodata = echodata.Sv.to_numpy()[0]
                 echodata, nan_indicies = remove_vertical_lines(echodata)
                 echodata_swap = np.swapaxes(echodata, 0, 1)
-
+      
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
                 os.remove(f'{img_path}/{new_file_name}_greyscale.png')
 
                 # Detect bottom algorithms
-                depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'])
-
+                depth, hardness, depth_roughness, new_echodata, dead_zone = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
+    
                 # Find, measure and remove waves in echodata
                 new_echodatax = new_echodata.copy()
                 layer = find_layer(new_echodatax, params[0]['beam_dead_zone'], params[0]['layer_in_a_row'], params[0]['layer_quantile'], params[0]['layer_strength_thresh'], params[0]['layer_size_thresh'])
                 if layer:
-                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
+                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'], depth)
                 else:
-                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
+                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'], depth)
 
                     if wave_avg > params[0]['extreme_wave_size']: 
-                        new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
+                        new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'], depth)
  
                 data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
                 os.remove(f'{img_path}/{new_file_name}_complete_greyscale.png')
@@ -81,26 +92,26 @@ if files:
                 # Find fish cumsum, median depth and inds
                 depth = [int(d) for d in depth]
                 
-                nasc = find_fish_median(echodata, wave_line, depth) 
+                nasc = find_fish_median(echodata, wave_line, dead_zone) 
                 nasc0, fish_depth0 = medianfun(nasc, params[0]['fish_layer0_start'], params[0]['fish_layer0_end'])
                 nasc1, fish_depth1 = medianfun(nasc, params[0]['fish_layer1_start'], params[0]['fish_layer1_end'])
                 nasc2, fish_depth2 = medianfun(nasc, params[0]['fish_layer2_start'], params[0]['fish_layer2_end'])
                 nasc3, fish_depth3 = medianfun(nasc, params[0]['fish_layer3_start'], params[0]['fish_layer3_end'])
-
+        
                 #change from dm to meters 
-                depth = [i*0.1 for i in depth if i != 0]
-                depth_roughness = round(0.1 * depth_roughness if depth_roughness != 0 else 0, 2)
-                wave_line = [i*0.1 for i in wave_line if i != 0]
+                depth = [i*0.1 for i in depth]
+                depth_roughness = 0.1*depth_roughness
+                wave_line = [i*0.1 for i in wave_line]
 
                 #adding sonar depth to depth variables 
                 for i in range(len(depth)):
                     if depth[i] != 100:
-                        depth[i] += params[0]['sonar_depth']
+                        depth[i] += sonar_depth
                         
                 for depth_list in [wave_line, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
                     for i in range(len(depth_list)):
                         if sum(depth_list)/len(depth_list) != 0:
-                            depth_list[i] += params[0]['sonar_depth']
+                            depth_list[i] += sonar_depth
 
                 #round values to two decimal places
                 for list in [depth, hardness, wave_line, nasc0, nasc1, nasc2, nasc3, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
@@ -109,7 +120,7 @@ if files:
                 if nan_indicies.size != 0:
                     ping_times = clean_times(ping_times, nan_indicies)
 
-        
+                
                 # Save all results in dict
                 data_dict = {
                     'time': ping_times,
@@ -133,7 +144,6 @@ if files:
             except Exception as error:
                 traceback.print_exc()
                 print(f'Problems with {file}')
-                continue
 
 else:
     print('All exising files already processed and analyzed.')
