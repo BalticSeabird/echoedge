@@ -3,6 +3,7 @@ import echopype as ep
 import pandas as pd
 import glob
 import os
+import sys
 import warnings
 import cv2
 import matplotlib.pyplot as plt
@@ -11,15 +12,17 @@ from datetime import datetime
 import yaml
 import traceback
 from scipy.ndimage import median_filter
-
 from PIL import Image
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '../lib'))
+
 from yaml.loader import SafeLoader
-from src.find_bottom import find_bottom, find_dead_zone
-from src.export_data import save_data
-from src.find_fish import find_fish_median, medianfun
-from src.visualization import data_to_images
-from src.processing import process_data, clean_times, remove_vertical_lines
-from src.find_waves import find_waves, find_layer
+from find_bottom import find_bottom
+from export_data import save_data
+from find_fish import find_fish_median, medianfun
+from visualization import data_to_images
+from processing import process_data, clean_times, remove_vertical_lines
+from find_waves import find_waves, find_layer
 
 warnings.filterwarnings("ignore")
 
@@ -64,11 +67,12 @@ bottom_depths = []
 
 
 df_gps = pd.read_csv(gps_path)
-df_gps['Datetime'] = pd.to_datetime(df_gps['GPS_date'] + ' ' + df_gps['GPS_time'])
-df_gps = df_gps.drop(['GPS_date', 'GPS_time'], axis=1)
+df_gps['Datetime'] = pd.to_datetime(df_gps['GPS_Date'] + ' ' + df_gps['GPS_Time'])
+df_gps = df_gps.drop(['GPS_Date', 'GPS_Time'], axis=1)
 
 if files:
     for file in files:
+        print(file)
         if '.raw' in file:
             try: 
                 with open(completed_files_path, 'a') as txt_doc:
@@ -78,28 +82,29 @@ if files:
                 new_file_name = filepath.split('/')[-1].replace('.raw', '')
 
                 # Load and process the raw data files
-                echodata, ping_times = process_data(filepath, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'])
+                echodata, ping_times = process_data(filepath, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'], 'BB')
                 echodata = echodata.Sv.to_numpy()[0]
                 echodata, nan_indicies = remove_vertical_lines(echodata)
                 echodata_swap = np.swapaxes(echodata, 0, 1)
-      
+
                 data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
                 os.remove(f'{img_path}/{new_file_name}_greyscale.png')
 
                 # Detect bottom algorithms
-                depth, hardness, depth_roughness, new_echodata, dead_zone = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['dead_zone'], params[0]['bottom_roughness_thresh'], params[0]['bottom_hardness_thresh'])
-    
+                depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'])
+                bottom_depth = depth 
                 # Find, measure and remove waves in echodata
                 new_echodatax = new_echodata.copy()
                 layer = find_layer(new_echodatax, params[0]['beam_dead_zone'], params[0]['layer_in_a_row'], params[0]['layer_quantile'], params[0]['layer_strength_thresh'], params[0]['layer_size_thresh'])
                 if layer:
-                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'], depth)
+                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
                 else:
-                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'], depth)
+                    new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodata, params[0]['wave_thresh'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
 
                     if wave_avg > params[0]['extreme_wave_size']: 
-                        new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'], depth)
- 
+                        new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
+
+                original_echodata = new_echodata.copy()
                 data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
                 os.remove(f'{img_path}/{new_file_name}_complete_greyscale.png')
 
@@ -109,11 +114,11 @@ if files:
                 image = (binary_echodata * 255).astype(np.uint8)
                 _, binary_image = cv2.threshold(image, 1, 255, cv2.THRESH_BINARY) # använder thresholding för att göra alla 1or vita och resten svarta
                 binary_image_copy = binary_image.copy()
-                plt.imsave(f'{img_path}/{file_name}_after_thresholding.png', binary_image)
+                #plt.imsave(f'{img_path}/{new_file_name}_after_thresholding.png', binary_image)
 
                 #blurres the image
                 blur = cv2.blur(binary_image,(5,10))
-                plt.imsave(f'{img_path}/{file_name}_after_blurring.png', blur)
+                #plt.imsave(f'{img_path}/{new_file_name}_after_blurring.png', blur)
 
                 #Finds contours
                 contours, _ = cv2.findContours(blur, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -122,7 +127,7 @@ if files:
 
                 convex_hulls = [cv2.convexHull(c) for c in contours]
                 cv2.drawContours(blur, convex_hulls, -1, (255), 1)
-                plt.imsave(f'{img_path}/{file_name}_convex_hull.png', blur)
+                #plt.imsave(f'{img_path}/{new_file_name}_convex_hull.png', blur)
 
                 for i, hull in enumerate(convex_hulls):
 
@@ -181,8 +186,8 @@ if files:
                         nasc_total = np.sum(nasc)
                         nasc_mean = np.mean(nasc)
                         
-                        data_to_images(original_echodata, f'{img_path}/{file_name}_clusters_on_original')
-                        os.remove(f'{img_path}/{file_name}_clusters_on_original_greyscale.png')    
+                        data_to_images(original_echodata, f'{img_path}/{new_file_name}_clusters_on_original')
+                        os.remove(f'{img_path}/{new_file_name}_clusters_on_original_greyscale.png')    
 
                         times.append(time)
                         latitudes.append(latitude)
@@ -213,12 +218,12 @@ if files:
                 'density': densities
                 })
 
-                df.to_csv(path_to_save_csv, index=False)
+                df.to_csv(csv_path, index=False)
 
             
             except Exception as error:
                     traceback.print_exc()
-                    print(f'Problems with {file_name}')
+                    print(f'Problems with {new_file_name }')
 
 
 for list in [longitudes, latitudes, depths, widths, heights, areas, nasc_means, nasc_totals, intensities, densities, bottom_depths]:
