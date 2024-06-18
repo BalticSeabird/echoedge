@@ -67,8 +67,8 @@ bottom_depths = []
 
 
 df_gps = pd.read_csv(gps_path)
-df_gps['Datetime'] = pd.to_datetime(df_gps['GPS_Date'] + ' ' + df_gps['GPS_Time'])
-df_gps = df_gps.drop(['GPS_Date', 'GPS_Time'], axis=1)
+df_gps['Datetime'] = pd.to_datetime(df_gps['GPS_date'] + ' ' + df_gps['GPS_time'])
+df_gps = df_gps.drop(['GPS_date', 'GPS_time'], axis=1)
 
 if files:
     for file in files:
@@ -182,12 +182,21 @@ if files:
                         width = w   
                         height = h    
                         
+
                         nasc = 4 * np.pi * (1852**2) * (10**(targetROI/10)) * 0.1
                         nasc_total = np.sum(nasc)
                         nasc_mean = np.mean(nasc)
                         
+                        data_to_images(targetROI, f'{img_path}/{new_file_name}_target_ROI')
+                        os.remove(f'{img_path}/{new_file_name}_target_ROI.png')    
+
+                        data_to_images(nasc, f'{img_path}/{new_file_name}_nasc')
+                        os.remove(f'{img_path}/{new_file_name}_nasc_greyscale.png')    
+
+                        
                         data_to_images(original_echodata, f'{img_path}/{new_file_name}_clusters_on_original')
                         os.remove(f'{img_path}/{new_file_name}_clusters_on_original_greyscale.png')    
+
 
                         times.append(time)
                         latitudes.append(latitude)
