@@ -194,7 +194,6 @@ if __name__ == "__main__":
                         'vmax': [vmax],
                         'cmap': [cmap],
                         'blur_type': [blur_type],
-                        'blur_size': [blur_size],
                         'kernel_first': [height],
                         'kernel_second': [width]
                     }
