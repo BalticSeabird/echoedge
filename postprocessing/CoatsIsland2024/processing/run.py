@@ -31,7 +31,7 @@ file_path = '/Volumes/T7 Shield/Data/Hudson Bay 2024'
 files = os.listdir(file_path)
 files = [file for file in files if file.startswith('WBAT-Phase0-')]
 
-for file in tqdm.tqdm(files):
+for file in tqdm.tqdm(files[:]):
     try:
         filepath = f'{file_path}/{file}'
         new_file_name = filepath.split('/')[-1].replace('.raw', '')
