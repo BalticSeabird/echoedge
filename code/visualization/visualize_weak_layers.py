@@ -6,6 +6,7 @@ import xarray as xr
 
 import tqdm
 import cv2
+import os
 
 from matplotlib.colors import Normalize
 
@@ -65,7 +66,7 @@ def create_normal_echogram(data, filepath='echogram'):
     cv2.imwrite(f'{filepath}.png', heatmap) 
 
 
-def create_echogram(data, cmap, vmin, vmax, filepath='echogram'):
+def create_echogram(data, cmap, vmin, vmax, kernel, filepath='echogram'):
     np_data = np.nan_to_num(data, copy=True)
     np_data[np_data<-90]= -90
     np_data = (np_data - np_data.min())/(np_data.max() - np_data.min())
@@ -76,9 +77,16 @@ def create_echogram(data, cmap, vmin, vmax, filepath='echogram'):
     cv2.imwrite(f'{filepath}_greyscale.png', flip_np_data) # greyscale image
 
     image = cv2.imread(f'{filepath}_greyscale.png', 0)
+
+    # image = cv2.filter2D(image, -1, kernel)
+    # blurred_img = cv2.GaussianBlur(image, (5, 5), 25)
+    # mask = image - blurred_img
+    # image = image + mask
+    image = cv2.medianBlur(image,25)
+
     norm = Normalize(vmin=vmin, vmax=vmax)
     colormap = plt.get_cmap(cmap) # 
-    heatmap = (colormap(norm(image)) * 2**16).astype(np.uint16)[:,:,:3]
+    heatmap = (colormap((image)) * 2**16).astype(np.uint16)[:,:,:3]
     heatmap = cv2.cvtColor(heatmap, cv2.COLOR_RGB2BGR)
 
     cv2.imwrite(f'{filepath}.png', heatmap) 
@@ -97,33 +105,47 @@ if __name__ == "__main__":
         'equivalent_beam_angle': -21
     }
 
-    path = '../../Raw_data/SLUAquaSailor2020V2-Phase0-D20200627-T023149-0.raw'
-    # path = '../../Calibration 20210517/SLUAquaSailor2020CALIBRATION-Phase0-D20210517-T090725-0.raw'
-    
-    data = process_data(path, cals, envs)
 
-    create_normal_echogram(data, 'echogram_normal')
+    kernels = {
+        'Original': np.array([[0]]),  # Placeholder for the original image
+        'Blur': np.ones((10, 10), np.float32) / 100,
+        'Edge Detection': np.array([[-1, -1, -1],
+                                    [-1,  8, -1],
+                                    [-1, -1, -1]]),
+        'Sharpen': np.array([[ 0, -1,  0],
+                            [-1,  5, -1],
+                            [ 0, -1,  0]]),
+        'Emboss': np.array([[-2, -1,  0],
+                            [-1,  1,  1],
+                            [ 0,  1,  2]])
+        }   
 
-    data[data < -90] = 0
-    data[data > -84] = 0
+    kernel = kernels['Blur'] # select kernel from above
 
-    cmap = 'viridis'
-    cmaps = plt.colormaps()
-    cmaps = ['Accent', 'autumn_r', 'brg_r', 'CMRmap_r', 'gist_ncar_r', 'BrBG', 'cividis', 'viridis', 'Dark2', 'Flag']
+    raw_path = '/mnt/BSP_NAS2/Sailor/Raw_data/2020'
+    selected_data = [file for file in os.listdir(raw_path) if file.startswith('SLUAquaSailor2020V2-Phase0-D20200627-T') and file.endswith('-0.raw')] # Add time after T to get a more specified window
+    # selected_data = [file for file in os.listdir(raw_path)]
 
-    vmins = [(i*25+15) for i in range(9)]
-    vmaxs = [(i*25+25) for i in range(10)]
+    for file in tqdm.tqdm(selected_data[::15]):
+        path = f'{raw_path}/{file}'
 
-    vmins = [0]
-    vmaxs = [70]
-    # Definiera nya gränsvärden för colormapen
+        data = process_data(path, cals, envs)
 
-    for cmap in tqdm.tqdm(cmaps):
-        for vmax in vmaxs:
-            for vmin in vmins:
-                try:
-                    create_echogram(data, cmap, vmin, vmax, f'echogram_{cmap}_{vmin}_{vmax}')
-                except:
-                    print('Error')
-                    continue
+        create_normal_echogram(data, 'echogram_normal')
+
+        data[data < -90] = 0
+        data[data > -80] = 0
+
+        cmap = 'viridis'
+        # cmaps = plt.colormaps()
+        # cmaps = ['Accent', 'autumn_r', 'brg_r', 'CMRmap_r', 'gist_ncar_r', 'BrBG', 'cividis', 'viridis', 'Dark2', 'Flag']
+        cmaps = ['gist_ncar_r']
+        vmins = [0]
+        vmaxs = [1]
+        # Definiera nya gränsvärden för colormapen
+            
+        for cmap in (cmaps):
+            for vmax in vmaxs:
+                for vmin in vmins:
+                    create_echogram(data, cmap, vmin, vmax, kernel, f'echogram_{file}_{cmap}_{vmin}_{vmax}')
 
