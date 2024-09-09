@@ -12,7 +12,9 @@
 
 # Image files
 *.png
+*.gif
 *.jpg
+*.mp4
 !*workflow.png
 
 # CSV files
