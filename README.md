@@ -44,5 +44,5 @@ echoedge/
 ```
 
 
-## Ackownledgements
+## Ackowledgements
 * The processing of the raw-files from the echosounder is based on the [Echopype](https://echopype.readthedocs.io/en/stable/) library. 
