@@ -39,3 +39,6 @@ google-cloud-sdk
 # Credential files
 seabirdaidatabase-0a68840d87ff.json
 *credential*
+
+# Folders
+data/
