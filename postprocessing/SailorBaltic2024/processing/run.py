@@ -37,7 +37,7 @@ all_positions = all_positions[["Datetime", "Longitude", "Latitude"]]
 
 # Set parameter values for echogram normalization
 upper = -30
-lower = -90
+lower = -95
 
 # Run 
 for file in tqdm.tqdm(files[:]):
