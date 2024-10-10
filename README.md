@@ -11,7 +11,7 @@ Start by checking your current environment, our configurations are shown below. 
 
 ##### Start by cloning the git repo
 ```
-git clone https://github.com/aidotsejoakim/echoedge
+git clone https://github.com/balticseabird/echoedge
 cd echoedge
 ```
 
