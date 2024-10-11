@@ -6,9 +6,17 @@ import imagesize
 import pandas as pd
 import cv2
 import datetime
+import os
+
+# First remove all files in dump foldet
+files = glob.glob("dump/*")
+
+for file in files:
+    os.remove(file)
+
 
 #Create a sorted list with all the png files in our directory
-file_list = sorted(glob.glob("../../../research/Acoustics/AISailor/VOTO_Hudson/Analysis/HudsonBay2024/Run2/img/*0_complete.png")) 
+file_list = sorted(glob.glob("../../../../../mnt/BSP_NAS2/Sailor/Echopype_results/Baltic2024/run10okt24/img/*0_complete.png")) 
 
 
 # Check image size of all images 
@@ -23,7 +31,7 @@ for file in file_list:
 include = []
 final_list = []
 for i in range(0, len(ws)): 
-    if (ws[i] == 160 and hs[i] == 1500):
+    if (ws[i] > 149 and hs[i] == 1000):
         include.append(1)
         final_list.append(file_list[i])
     else:
@@ -66,31 +74,54 @@ for file in final_list:
         str3 = str1+str2
         text = str3
         font = cv2.FONT_HERSHEY_SIMPLEX
-        org = (1900, 1450)
+        org = (1900, 950)
         fontScale = 2
-        color = (255, 255, 255)
+        color = (0, 0, 255)
         thickness = 2
         im_h = cv2.putText(im_h, text, org, font, fontScale, 
-                        color, thickness, cv2.LINE_AA, False)    
-        cv2.imwrite(f'dump/added_{imcounter}.png', im_h)
+                        color, thickness, cv2.LINE_AA, False)
+        imcounter_fill = str(imcounter).zfill(4)    
+        cv2.imwrite(f'dump/added_{imcounter_fill}.png', im_h)
         tempfiles = []
         counter = 0
         imcounter += 1
 
-# text
+
+# Check resulting size of images and cut horizontally to get equal size
+file_list = sorted(glob.glob("dump/added*")) 
+
+# Check image size of all combined images 
+ws = []
+hs = []
+for file in file_list: 
+    width, height = imagesize.get(file)
+    ws.append(width)
+    hs.append(height) 
+min(ws)
+
+# Cut to match minimum size
+
+counter = 0
+for file in file_list: 
+    im = cv2.imread(file)
+    im_crop = im[:,0:2999]
+    filenum = str(counter).zfill(4)
+    cv2.imwrite(f'dump/added_cropped_{filenum}.png', im_crop)
+    counter += 1
+
 
 # Just take 20 images at the time... 
-combined = sorted(glob.glob("dump/added*")) 
+combined = sorted(glob.glob("dump/added_cropped*"))
+
 
 #frames per second
 fps = 2
 
 #Create a clip instance using ImageSequenceClip included in moviepy
 clip = mpy.ImageSequenceClip(combined, fps=fps)
-#clip = clip.resize((200, 200))
 
 #name of the animation
-gif_name = 'echograms_complete_added'
+gif_name = 'echogram_baltic2024_masked'
 
 #No we can write the animation as a a gif
 clip.write_gif("dump/"+gif_name+'.gif')
