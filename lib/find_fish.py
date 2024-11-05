@@ -40,7 +40,7 @@ def medianfun(nasc, start, stop):
     nascx, fish_depth = [], []
     nasc_copy = nasc.copy()
     for ping in nasc_copy:
-        ping[0:(start*10)] = 0
+        ping[0:(start*10)] = 0 #*10 to transform into pixels
         ping[(stop*10):1000] = 0
         cumsum = np.cumsum(ping)
         totnasc = sum(ping)

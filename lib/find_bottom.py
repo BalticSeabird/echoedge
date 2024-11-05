@@ -106,7 +106,7 @@ def get_beam_dead_zone(echodata):
                 return i
 
 
-def find_bottom(echodata, window_size):
+def find_bottom(echodata, window_size, hardness_thresh):
     echodata_original = echodata.copy()
     #Get dead zone and slice it out from echodata
     dead_zone = get_beam_dead_zone(echodata) 
@@ -117,9 +117,9 @@ def find_bottom(echodata, window_size):
     hardness = echodata[depth, np.arange(echodata.shape[1])]
 
     #Finding weak pings
-    weak_ping_mask = np.isnan(np.where(hardness < -30, np.nan, depth))
+    weak_ping_mask = np.isnan(np.where(hardness < hardness_thresh, np.nan, depth))
     #Findind outliers and set them to nan
-    depth = replace_outliers_with_nan(np.where(hardness < -30, echodata.shape[0], depth) )
+    depth = replace_outliers_with_nan(np.where(hardness < hardness_thresh, echodata.shape[0], depth) )
     #Setting weak pings as nan as well
     depth[weak_ping_mask] = np.nan
 

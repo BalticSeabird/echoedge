@@ -1,0 +1,53 @@
+env_params:
+  temperature: 20.338 # temperature in celsius
+  salinity: 34.27 # salinity from PPS78 (R gsw_SP_from_C)
+  pressure: 10.1325 # pressure in dBar
+
+
+cal_params:
+  gain_correction: 28.49 # center value of gain (here 19th frequency: 202657)
+  equialent_beam_angle: -21 # ctrl+F in the calibration file
+
+
+bin_size: 0.1
+
+
+layer_strength_thresh: -100
+layer_in_a_row: 3
+layer_size_thresh: 10
+layer_quantile: 0.7
+
+
+bottom_offset: 20
+bottom_hardness_thresh: -45
+bottom_roughness_thresh: 30
+no_bottom_default: 101
+
+
+sonar_depth: 0.6
+beam_dead_zone: 10
+dead_zone: 15
+
+wave_thresh: -77
+wave_thresh_layer: -68
+extreme_wave_size: 70
+in_a_row_waves: 3
+
+
+move_avg_windowsize: 9
+
+
+fish_layer0_start: 0
+fish_layer0_end: 150
+
+fish_layer1_start: 0
+fish_layer1_end: 35
+
+fish_layer2_start: 35
+fish_layer2_end: 80
+
+fish_layer3_start: 80
+fish_layer3_end: 150
+
+
+ltz : 'Australia/Melbourne'
