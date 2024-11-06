@@ -12,7 +12,7 @@ cal_params:
 bin_size: 0.1
 
 
-layer_strength_thresh: -100
+layer_strength_thresh: -80
 layer_in_a_row: 3
 layer_size_thresh: 10
 layer_quantile: 0.7
