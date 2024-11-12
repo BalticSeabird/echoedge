@@ -4,9 +4,8 @@ import warnings
 import sys
 import yaml
 import os
-import traceback
 import tqdm
-import datetime
+from pathlib import Path
 
 from yaml.loader import SafeLoader
 
@@ -24,25 +23,33 @@ warnings.filterwarnings("ignore")
 with open('postprocessing/SailorBaltic2024/params_Baltic2024.yaml', 'r') as f:
     params = list(yaml.load_all(f, Loader=SafeLoader))
 
-csv_path = 'out/csv'
-img_path = 'out/img'
-file_path = "../../../../../Volumes/JHS-SSD2/WBAT_St_Karlso"
+csv_path = 'out/WBAT_Karlso2024/csv'
+img_path = 'out/WBAT_Karlso2024/img'
+#file_path = "../../../../../Volumes/JHS-SSD2/WBAT_St_Karlso"
+file_path = Path("../../../../../../mnt/BSP_NAS2/Sailor/WBAT/Karlso2024/Raw_files")
 
-files = os.listdir(file_path)
+files = file_path.rglob("*.raw")
 #files = [file for file in files if file.startswith('WBAT-Phase0-')]
 
 # Set parameter values for echogram normalization
 upper = -30
 lower = -95
 
+
+# Test 
+file = list(files)[10]
+raw_echodata, channels, longitude, latitude, transmit_types = extract_meta_data(file)
+import echopype as ep
+raw_echodata = ep.open_raw(file, sonar_model='EK80')
+
+
 # Run 
-for file in tqdm.tqdm(files[:]):
+for file in tqdm.tqdm(files):
     try:
-        filepath = f'{file_path}/{file}'
-        new_file_name = filepath.split('/')[-1].replace('.raw', '')
+        new_file_name = file.stem
 
         # Load and process the raw data files
-        echodata, ping_times = process_data(filepath, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'], 'BB')
+        echodata, ping_times = process_data(file, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'], "BB")
         echodata = echodata.Sv.to_numpy()[0]
         echodata, nan_indicies = remove_vertical_lines(echodata)
         echodata_swap = np.swapaxes(echodata, 0, 1)

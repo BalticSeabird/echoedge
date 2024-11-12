@@ -4,7 +4,7 @@
 
 import os
 
-print(os.listdir("../../../../../mnt/BSP_NAS2/Sailor/Echopype_results/Baltic2024/run10okt24/img2/"))
+print(os.listdir("../../../../../../mnt/BSP_NAS2/Sailor/WBAT/Karlso2024/Raw_files"))
 
 
 
