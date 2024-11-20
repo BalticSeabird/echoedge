@@ -15,10 +15,10 @@ import pickle
 from skimage.transform import rescale
 from skimage.filters import threshold_multiotsu,threshold_mean,threshold_otsu
 
-from created_function import npy_correction_v3,convergence_test_new20240730,find_original_position,find_edges,find_center_square,parameters_correction
+from Double_thresh_function import npy_correction_v3,convergence_test_new20240730,find_original_position,find_edges,find_center_square,parameters_correction
 
 
-root_path = "../Run_info" # PATH TO GO ONT HE FOLDER WITH THE INPUT/OUTPUT
+
 
 #######################################################################################################################################################
 ################### STEP 1 : Define a function to obtain schools description ##########################################################################
@@ -276,11 +276,11 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 ###################################               path part                   ###################################  
-npy_path = f"{root_path}/Output/Resize_img/08_08_2024"               #  Path where the resized .npy files are stored
-dest_path_max = f"{root_path}/Output/Double_thresholding/Thresh_max"    # Path to save the thresh_max curve
-dest_path_min = f"{root_path}/Output/Double_thresholding/Thresh_min"    # Path to save the thresh_min curve
-csv_path = f"{root_path}/Output/Corrected_img_wave_bottom/Csv/09_08_2024"                   #  Path where the original .csv files are stored
-dest_path_dt = f"{root_path}/Output/Double_thresholding/Img/06_09_2024"   # path to save the double threshold output images
+npy_path = '../../../out/Resize'               #  Path where the resized .npy files are stored
+dest_path_max = "../../../out/Thresh_max"    # Path to save the thresh_max curve
+dest_path_min =  "../../../out/Thresh_min"    # Path to save the thresh_min curve
+csv_path = '../../../out/csv'                #  Path where the original .csv files are stored
+dest_path_dt =  "../../../out/Schools"   # path to save the double threshold output images
 mapping_path = npy_path                 #  Path where the mapping_info.pkl file is stored
 ###################################            end of path part               ###################################  
 
@@ -310,12 +310,12 @@ for file in tqdm(files_npy):
     img = np.load(file_path)
     min_pixel_intensity = np.min(img)
     if min_pixel_intensity > -120:                           # pass the images with echo parts        
-        plt.imsave(f'{dest_path_max}/{file}_original.png',img)
+        plt.imsave(f'{npy_path}/{file}_original.png',img)
 
         # Step 0 : find the corrections parameters
-        csv_name = file.replace('complete_new.npy','.csv')
+        csv_name = file.replace('_new.npy','.csv')
         csv_table = pd.read_csv(os.path.join(csv_path,csv_name))
-        median_sea_depth = np.median(csv_table['bottom_depth'])
+        median_sea_depth = np.median(csv_table['depth'])
 
         shape_top,shape_bottom,total_rows,shape_top_desc,shape_bottom_desc = parameters_correction(img,median_sea_depth,threshold = -30)
             
@@ -452,7 +452,7 @@ for file in tqdm(files_npy):
         
             # Criteria 1    
             if selected_new_mins.size > 0:
-                plt.imsave(f'{dest_path_min}/{file}_original.png',img)
+                # plt.imsave(f'{dest_path_min}/{file}_original.png',img)
                 # find the best solidity
                 best_solidity_mean = np.argmax(selected_c1_mean)
                 best_solidity_min = np.argmax(selected_c1_min)
@@ -544,7 +544,7 @@ for file in tqdm(files, desc="Processing matrix"):
     depth_sea = []
     gps_lon_lat = []
     time = []
-    csv_name = file.replace('complete_new.npy','.csv')
+    csv_name = file.replace('_new.npy','.csv')
     csv_table = pd.read_csv(os.path.join(csv_path,csv_name))
 
     # Step 4-1 : From center_file to get the school center in resized file
@@ -555,9 +555,9 @@ for file in tqdm(files, desc="Processing matrix"):
     for pixel_position in pixel_positions:
         original_position = find_original_position(pixel_position, cut_intervals)
         pixel_original.append(original_position)
-        depth_sea.append(csv_table.iloc[original_position-1]['bottom_depth'])
-        gps_lon_lat.append([csv_table.iloc[original_position-1]['Longitude'],csv_table.iloc[original_position-1]['Latitude']])
-        time.append(csv_table.iloc[original_position-1]['time'])
+        depth_sea.append(csv_table.iloc[original_position-1]['depth'])
+        gps_lon_lat.append([csv_table.iloc[original_position-1]['Long'],csv_table.iloc[original_position-1]['Lat']])
+        time.append(csv_table.iloc[original_position-1]['UTC_time'])
 
     # Save all the output by double threshold 
     file_info['sea_depth'] = depth_sea

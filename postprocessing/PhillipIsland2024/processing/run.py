@@ -12,7 +12,7 @@ from math import radians, sin, cos, sqrt, atan2
  
 from yaml.loader import SafeLoader
 
-from processing import process_data, extract_meta_data, remove_vertical_lines, clean_times, get_interpolated_gps2, cut_zone, download_posi
+from processing import process_data, extract_meta_data, remove_vertical_lines, clean_times, get_interpolated_gps2
 from find_bottom import get_beam_dead_zone, find_bottom
 from find_fish import find_fish_median, medianfun
 from find_waves import find_waves, find_layer
@@ -28,7 +28,10 @@ with open('../PI_parameters.yaml', 'r') as f:
 
 csv_path = "D:/SURVEY2023/PREPROCESS_DATA/Csv"
 img_path = "D:/SURVEY2023/PREPROCESS_DATA/Img"
-files_path = "D:/SURVEY2023/SURVEY RAW DATA/Files" #2023 path 
+npy_path = "D:/SURVEY2023/PREPROCESS_DATA/npy"
+files_path = "D:/SURVEY2023/SURVEY RAW DATA/Files" #2023 path
+# files_p = pd.read_csv('../../../test/Rerun/Rerun_files.csv')
+# files = files_p['raw_list']
 
 files = []
 names = []
@@ -80,7 +83,7 @@ for file in tqdm.tqdm(files[:]):
             #UTC Time
             ping_times_series = pd.to_datetime(ping_times)
 
-            #Correction for January files
+            # Correction for January files
             if ping_times_series[0] > pd.to_datetime("2023-12-17 05:00:00") :
                 echodata = echodata + 22.451
             
@@ -89,7 +92,7 @@ for file in tqdm.tqdm(files[:]):
             complete_echodata = echodata.copy() # create a copy to analyse bottom signal
             
                     
-            data_to_images(echodata_swap, f'{img_path}/{new_file_name}', upper = upper, lower = lower) # save img with ground
+            data_to_images(echodata_swap, f'{img_path}/{new_file_name}',f'{npy_path}/{new_file_name}', upper = upper, lower = lower) # save img with ground
             #os.remove(f'{img_path}/{new_file_name}_greyscale.png')
 
 
@@ -107,7 +110,7 @@ for file in tqdm.tqdm(files[:]):
                 if wave_avg > params[0]['extreme_wave_size']: 
                     new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
 
-            data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete', upper = upper, lower = lower) # save img without ground and waves
+            data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete',f'{npy_path}/{new_file_name}', upper = upper, lower = lower) # save img without ground and waves
             os.remove(f'{img_path}/{new_file_name}_complete_greyscale.png')
 
             # Find fish cumsum, median depth and inds

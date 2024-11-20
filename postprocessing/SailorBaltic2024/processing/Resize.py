@@ -7,11 +7,8 @@ import pandas as pd
 import sys
 import pickle
 
-# Read aarguments
-#my_functions_dir = sys.argv[1]
-#'C:/Users/jliu/Documents/resultat/save_to_SCIGNE/Script'
-#sys.path.append(my_functions_dir)
-from created_function import resize_matrix_31052024
+
+from Double_thresh_function import resize_matrix_31052024
 
 
 #################GET THE MEAN VELOCITY######################### 
@@ -21,11 +18,9 @@ from created_function import resize_matrix_31052024
 
 # PATH ##############################################################
 
-root_path = "../Run_info" # PATH TO GO ONT HE FOLDER WITH THE INPUT/OUTPUT
-
-csv_path = f"{root_path}/Output/Corrected_img_wave_bottom/Csv"
-npi_path = f"{root_path}/Output/Corrected_img_wave_bottom/Img"
-dest_path = f"{root_path}/Output/Resize_img"
+csv_path = '../../../out/csv'
+npi_path = '../../../out/npy'
+dest_path = '../../../out/Resize'
 
 ###############################################################
 # Check if the directory exists
@@ -75,6 +70,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 mean_speed = np.round(Velocity_all.mean(),3)
+
+#mean_speed = 0.648 in 2023 breeding season
 print("mean speed is :",mean_speed)
 
 # create a mapping table to save the mapping info
@@ -90,7 +87,7 @@ for i, csv_file in enumerate(tqdm(csv_files, desc="Processing matrix"), start=1)
     Velocity_info = np.array(csv_file_info['Velocity'])
     # depth = csv_file_info['bottom_depth']
     
-    matrix_file = csv_file.replace('.csv','complete.npy')
+    matrix_file = csv_file.replace('.csv','.npy')
     matrix_file_path = os.path.join(npi_path,matrix_file)
     
     if np.all(np.logical_and(Velocity_info != 0, ~np.isnan(Velocity_info))):

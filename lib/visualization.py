@@ -4,9 +4,9 @@ import cv2
 import os
 
 # Plot and Visualize data
-def data_to_images(data, img_path='', normalization=False, upper=False, lower=False):
+def data_to_images(data, img_path='', npy_path = '', normalization=False, upper=False, lower=False):
     """
-    Function to create images (greyscale & viridis) from np_array with high resolution.
+    Function to create images (greyscale & viridis) from np_array with high resolution and exportmatrix of the image as .npy
     """
 
     np_data = np.nan_to_num(data, copy=True)
@@ -24,6 +24,9 @@ def data_to_images(data, img_path='', normalization=False, upper=False, lower=Fa
     np_data = (np_data - lower)/(upper - lower)
     np_data = np_data*256
     
+    if img_path.endswith('complete') and not os.path.exists(f'{npy_path}.npy'):
+        np.save(f'{npy_path}', data)
+
     # flip_np_data = cv2.flip(np_data, 1) # flip the image to display it correctly
 
     #cv2.imwrite(f'{filepath}_greyscale.png', np_data) # greyscale image
