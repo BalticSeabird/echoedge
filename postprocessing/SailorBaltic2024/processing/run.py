@@ -9,6 +9,7 @@ import tqdm
 import datetime
 from dateutil import tz
 from math import radians, sin, cos, sqrt, atan2
+from pathlib import Path
 
 from yaml.loader import SafeLoader
 
@@ -23,53 +24,61 @@ warnings.filterwarnings("ignore")
 
 
 # Load all params from yaml-file
-with open('../params_Baltic2024.yaml', 'r') as f:
+with open('postprocessing/SailorBaltic2024/params_Baltic2024.yaml', 'r') as f:
     params = list(yaml.load_all(f, Loader=SafeLoader))
 
-csv_path = '../../../out/csv'
-img_path = '../../../out/img'
-npy_path = '../../../out/npy'
-# file_path = "../../../../../mnt/BSP_NAS2/Sailor/Raw_data/2024"
-file_path = '../../../test/raw/Sweden'
-files = os.listdir(file_path)
+csv_path = 'out/csv'
+img_path = 'out/img'
+npy_path = 'out/npy'
+file_path = '../../../../../../mnt/BSP_NAS2/Acoustics/Sailor_Karlso/Raw_data/2023/'
+#files = os.listdir(file_path)
 #files = [file for file in files if file.startswith('WBAT-Phase0-')]
 
 #For this we only wnat the 0 files ! 
-files = [file for file in files if file.endswith('-0.raw')]
+#files = [file for file in files if file.endswith('-0.raw')]
+
+files = Path(file_path).glob("*-0.raw")
+
 
 ######################################################################
 ##########       The interpolation of the GPS position      ##########
-gps_files_30 = '../../../test/Data_GPS/Interpolated_30sec'
-gps_files_2 = '../../../test/Data_GPS/Interpolated_2sec'
-frequency_value = 2
+#gps_files_30 = 'postprocessing/SailorBaltic2024/SailorPositions2023_totSweden.gps.csv'
+#gps_files_2 = 'postprocessing/SailorBaltic2024/SailorPositions2023_totSweden.gps.csv'
+#frequency_value = 2
 
-interpolated_df = pd.DataFrame()
-for gps_file in os.listdir(gps_files_30):
-    file_path_gps = os.path.join(gps_files_2,gps_file)
-    new_file_name_gps = file_path_gps.replace('.gps.csv', '_interpolated.csv')
-    if os.path.exists(new_file_name_gps):
-        print(f'The file {new_file_name_gps} exists.')
-        interpolated = pd.read_csv(new_file_name_gps)
-        interpolated_df=pd.concat([interpolated_df, interpolated])
-    else:
-        file_path_gps_30 = os.path.join(gps_files_30,gps_file)
-        interpolated = get_interpolated_gps2(file_path_gps_30,frequency=frequency_value, ltz = params[0]['ltz'])
-        interpolated.to_csv(new_file_name_gps)
-        interpolated_df=pd.concat([interpolated_df, interpolated])
+#interpolated_df = pd.DataFrame()
+#for gps_file in os.listdir(gps_files_30):
+#    file_path_gps = os.path.join(gps_files_2,gps_file)
+#    new_file_name_gps = file_path_gps.replace('.gps.csv', '_interpolated.csv')
+#    if os.path.exists(new_file_name_gps):
+#        print(f'The file {new_file_name_gps} exists.')
+#        interpolated = pd.read_csv(new_file_name_gps)
+#        interpolated_df=pd.concat([interpolated_df, interpolated])
+#    else:
+#        file_path_gps_30 = os.path.join(gps_files_30,gps_file)
+##        interpolated = get_interpolated_gps2(file_path_gps_30,frequency=frequency_value, ltz = params[0]['ltz'])
+#       interpolated.to_csv(new_file_name_gps)
+#        interpolated_df=pd.concat([interpolated_df, interpolated])
 
-interpolated_df = interpolated_df.reset_index(drop=True)
+#interpolated_df = interpolated_df.reset_index(drop=True)
+
+
+
+interpolated_df = pd.read_csv("postprocessing/SailorBaltic2024/SailorPositions2023_totSweden.gps.csv")
+
+
 # Set parameter values for echogram normalization
 upper = -30
 lower = -95
 
 # Run 
-for file in tqdm.tqdm(files[:]):
+for file in tqdm.tqdm(list(files)):
     try:
-        filepath = f'{file_path}/{file}'
-        new_file_name = filepath.split('/')[-1].replace('.raw', '')
+        #filepath = f'{file_path}/{file}'
+        new_file_name = file.stem
 
         # Load and process the raw data files
-        echodata, ping_times = process_data(filepath, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'], 'BB')
+        echodata, ping_times = process_data(file, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'], 'BB')
         echodata = echodata.Sv.to_numpy()[0]
         echodata, nan_indicies = remove_vertical_lines(echodata)
         echodata_swap = np.swapaxes(echodata, 0, 1)

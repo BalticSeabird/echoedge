@@ -31,9 +31,9 @@ def load_coordinates(path, frequency=1):
 
 
 if __name__ == "__main__":
-    path = "data/SailorKarlsoPositionsEchoview2024.gps.csv"
+    path = "data/SailorKarlsoPositionsEchoview2020-2023.gps.csv"
     coords = load_coordinates(path)
     print("Done!")
 
-    coords.to_csv("postprocessing/SailorBaltic2024/interpolated_coords.csv", index=False)
+    coords.to_csv("postprocessing/SailorBaltic2024/interpolated_coords20-23.csv", index=False)
 
