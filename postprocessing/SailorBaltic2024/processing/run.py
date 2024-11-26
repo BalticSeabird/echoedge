@@ -31,6 +31,13 @@ csv_path = 'out/csv'
 img_path = 'out/img'
 npy_path = 'out/npy'
 file_path = '../../../../../../mnt/BSP_NAS2/Acoustics/Sailor_Karlso/Raw_data/2023/'
+
+
+# Specify where to look for further code: 
+#sys.path.append("lib") # Mac
+
+
+
 #files = os.listdir(file_path)
 #files = [file for file in files if file.startswith('WBAT-Phase0-')]
 
@@ -169,7 +176,7 @@ for file in tqdm.tqdm(list(files)):
         }
 
 
-        save_data(data_dict, file.replace('.raw', '.csv'), csv_path)
+        save_data(data_dict, f'{new_file_name}.csv', "out/csv/")
     except Exception as e:
         print(f'Error in file {file}')
         print(e)
