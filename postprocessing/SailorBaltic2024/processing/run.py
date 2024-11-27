@@ -71,7 +71,7 @@ files = Path(file_path).glob("*-0.raw")
 
 
 
-interpolated_df = pd.read_csv("postprocessing/SailorBaltic2024/SailorPositions2023_totSweden.gps.csv")
+interpolated_df = pd.read_csv("postprocessing/SailorBaltic2024/SailorPositions2023_totSweden_interpolated.csv")
 
 
 # Set parameter values for echogram normalization
