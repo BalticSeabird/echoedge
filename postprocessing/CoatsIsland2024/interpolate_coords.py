@@ -9,14 +9,17 @@ def load_coordinates(path, frequency=1):
     """
     
     print('Loading and interpolating coordinates...')
-    df = pd.read_excel(path)
+    # Read tab separated file
+
+    df = pd.read_csv(path, sep ='\t')
+    #df.head()
 
     # convert the times column
     df['Time'] = pd.to_datetime(df['Time'])
     df['Time'] = pd.to_datetime((df['Time'].astype(np.int64)).astype('datetime64[ns]'))
 
     # new range (once a second), resample and interpolate
-    new_range = pd.date_range(df.Time[0], df.Time.values[-1], freq=str(frequency)+'S')
+    new_range = pd.date_range(df.Time[0], df.Time.values[-1], freq=str(frequency)+'s')
     interpolated_df = df.set_index('Time').reindex(new_range).interpolate().reset_index()
     interpolated_df.rename(columns= {'index' : 'Datetime'}, inplace=True)
     interpolated_df['Long'] = interpolated_df['Long'].apply(lambda x: round(x, 7))
@@ -28,9 +31,9 @@ def load_coordinates(path, frequency=1):
 
 
 if __name__ == "__main__":
-    path = "coords_data/SB2017A.xlsx"
+    path = "coords_data/SB2017A.txt"
     coords = load_coordinates(path)
     print("Done!")
 
-    coords.to_csv("coords_data/interpolated_coords.csv", index=False)
+    coords.to_csv("coords_data/interpolated_coords_coats24.csv", index=False)
 

@@ -5,7 +5,7 @@ env_params:
 
 
 cal_params:
-  gain_correction: 28.49
+  gain_correction: 28.07
   equialent_beam_angle: -21
 
 

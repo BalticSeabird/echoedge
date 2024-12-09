@@ -1,0 +1,52 @@
+env_params:
+  temperature: 2
+  salinity: 9
+  pressure: 10.1325
+
+
+cal_params:
+  gain_correction: 28.49
+  equialent_beam_angle: -21
+
+
+bin_size: 0.1
+
+
+layer_strength_thresh: -80
+layer_in_a_row: 3
+layer_size_thresh: 10
+layer_quantile: 0.7
+
+
+bottom_offset: 20
+bottom_hardness_thresh: -30
+bottom_roughness_thresh: 30
+no_bottom_default: 101
+
+
+sonar_depth: 0.6
+beam_dead_zone: 10
+dead_zone: 15
+
+wave_thresh: -77
+wave_thresh_layer: -68
+extreme_wave_size: 70
+in_a_row_waves: 3
+
+
+move_avg_windowsize: 9
+
+
+fish_layer0_start: 0
+fish_layer0_end: 100
+
+fish_layer1_start: 0
+fish_layer1_end: 35
+
+fish_layer2_start: 35
+fish_layer2_end: 80
+
+fish_layer3_start: 80
+fish_layer3_end: 100
+
+ltz : "Europe/Berlin"

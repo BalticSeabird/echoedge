@@ -1,11 +1,10 @@
 import numpy as np
 import warnings
-import sys
 import yaml
 import os
-import traceback
 import tqdm
-import datetime
+from pathlib import Path
+import pandas as pd
 
 from yaml.loader import SafeLoader
 
@@ -19,35 +18,42 @@ from export_data import save_data, shorten_list
 warnings.filterwarnings("ignore")
 
 
+csv_path = '../../../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Echopype_results/Hudson2024/run9dec24/csv'
+img_path = '../../../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Echopype_results/Hudson2024/run9dec24/img'
+npy_path = '../../../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Echopype_results/Hudson2024/run9dec24/npy'
+file_path = '../../../../../../../../mnt/BSP_NAS2/Acoustics/VOTO_Sailbuoy/HudsonBay_2024/Raw_files/'
+
+
+files = Path(file_path).glob("*-0.raw")
+
+
+# GPS Coordinates 
+interpolated_df = pd.read_csv('coords_data/interpolated_coords_coats24.csv')
+
 # Load all params from yaml-file
-with open('old_params.yaml', 'r') as f:
+with open('params_coats24.yaml', 'r') as f:
     params = list(yaml.load_all(f, Loader=SafeLoader))
 
-csv_path = '/Volumes/T7 Shield/Analysis/Hudson Bay 2024/Run 1/csv'
-img_path = '/Volumes/T7 Shield/Analysis/Hudson Bay 2024/Run 1/img'
+# Plot thresholds 
+upper = -30
+lower = -100
 
 
-file_path = '/Volumes/T7 Shield/Data/Hudson Bay 2024'
-files = os.listdir(file_path)
-files = [file for file in files if file.startswith('WBAT-Phase0-')]
-
-for file in tqdm.tqdm(files[:]):
+# Loop through all files
+for file in tqdm.tqdm(files):
     try:
-        filepath = f'{file_path}/{file}'
-        new_file_name = filepath.split('/')[-1].replace('.raw', '')
+        new_file_name = file.stem
 
         # Load and process the raw data files
-        echodata, ping_times = process_data(filepath, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'], 'BB')
+        echodata, ping_times = process_data(file, params[0]['env_params'], params[0]['cal_params'], params[0]['bin_size'], 'BB')
         echodata = echodata.Sv.to_numpy()[0]
         echodata, nan_indicies = remove_vertical_lines(echodata)
         echodata_swap = np.swapaxes(echodata, 0, 1)
 
-        data_to_images(echodata_swap, f'{img_path}/{new_file_name}') # save img without ground
-        os.remove(f'{img_path}/{new_file_name}_greyscale.png')
-
+        data_to_images(echodata_swap, f'{img_path}/{new_file_name}', upper = upper, lower = lower) # save img without ground
 
         # Detect bottom algorithms
-        depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'])
+        depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['bottom_hardness_thresh'])
 
         # Find, measure and remove waves in echodata
         new_echodatax = new_echodata.copy()
@@ -60,8 +66,7 @@ for file in tqdm.tqdm(files[:]):
             if wave_avg > params[0]['extreme_wave_size']: 
                 new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
 
-        data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
-        os.remove(f'{img_path}/{new_file_name}_complete_greyscale.png')
+        data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete', upper = upper, lower = lower) # save img without ground and waves
 
         # Find fish cumsum, median depth and inds
         depth = [int(d) for d in depth]
@@ -79,7 +84,7 @@ for file in tqdm.tqdm(files[:]):
 
         #adding sonar depth to depth variables 
         for i in range(len(depth)):
-            if depth[i] != 100:
+            if depth[i] != 150:
                 depth[i] += params[0]['sonar_depth']
                 
         for depth_list in [wave_line, fish_depth0, fish_depth1, fish_depth2, fish_depth3]:
@@ -95,9 +100,23 @@ for file in tqdm.tqdm(files[:]):
             ping_times = clean_times(ping_times, nan_indicies)
 
 
+        # Link to GPS coordinates
+        Datetime_UTC = pd.Series(ping_times, name = 'Datetime_UTC')
+        interpolated_df['Datetime_UTC'] = pd.to_datetime(interpolated_df['Datetime'])
+        LatLong = interpolated_df.merge(Datetime_UTC, on = "Datetime_UTC", how = "inner")
+        
+        Lat = LatLong["Lat"]
+        Long = LatLong["Long"]
+        UTC_time = pd.to_datetime(LatLong['Datetime'], utc = True)   
+        #Velocity = LatLong['Velocity']
+        Datetime_local = UTC_time.dt.tz_convert("US/Eastern")
+
         # Save all results in dict
         data_dict = {
-            'time': ping_times,
+            'UTC_time': UTC_time,
+            'Local_time' : Datetime_local,
+            'Lat': Lat,
+            'Long': Long,
             'bottom_hardness': hardness,
             'bottom_roughness': depth_roughness,
             'wave_depth': wave_line,
@@ -113,7 +132,8 @@ for file in tqdm.tqdm(files[:]):
         }
 
 
-        save_data(data_dict, file.replace('.raw', '.csv'), csv_path)
+
+        save_data(data_dict, f'{new_file_name}.csv', csv_path)
     except Exception as e:
         print(f'Error in file {file}')
         print(e)
