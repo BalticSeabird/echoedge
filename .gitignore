@@ -20,6 +20,7 @@
 # CSV files
 *.csv
 *.npy
+*.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -43,3 +44,5 @@ seabirdaidatabase-0a68840d87ff.json
 
 # Folders
 data/
+out/
+dump/
