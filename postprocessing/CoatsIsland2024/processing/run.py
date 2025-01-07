@@ -1,14 +1,19 @@
 import numpy as np
+import pandas as pd
 import warnings
+import sys
 import yaml
 import os
+import traceback
 import tqdm
+import datetime
+from dateutil import tz
+from math import radians, sin, cos, sqrt, atan2
 from pathlib import Path
-import pandas as pd
 
 from yaml.loader import SafeLoader
 
-from processing import process_data, extract_meta_data, remove_vertical_lines, clean_times
+from processing import process_data, extract_meta_data, remove_vertical_lines, clean_times, get_interpolated_gps2
 from find_bottom import get_beam_dead_zone, find_bottom
 from find_fish import find_fish_median, medianfun
 from find_waves import find_waves, find_layer
@@ -18,21 +23,44 @@ from export_data import save_data, shorten_list
 warnings.filterwarnings("ignore")
 
 
-csv_path = '../../../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Echopype_results/Hudson2024/run9dec24/csv'
-img_path = '../../../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Echopype_results/Hudson2024/run9dec24/img'
-npy_path = '../../../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Echopype_results/Hudson2024/run9dec24/npy'
-file_path = '../../../../../../../../mnt/BSP_NAS2/Acoustics/VOTO_Sailbuoy/HudsonBay_2024/Raw_files/'
+csv_path = '../../../out/csv'
+img_path = '../../../out/img'
+npy_path = '../../../out/npy'
+file_path = '../../../test/raw/Hudson'
 
 
 files = Path(file_path).glob("*-0.raw")
 
-
-# GPS Coordinates 
-interpolated_df = pd.read_csv('coords_data/interpolated_coords_coats24.csv')
-
 # Load all params from yaml-file
 with open('params_coats24.yaml', 'r') as f:
     params = list(yaml.load_all(f, Loader=SafeLoader))
+
+######################################################################
+##########       The interpolation of the GPS position      ##########
+gps_files_30 = '../../../test/Data_GPS/Interpolated_30sec'
+gps_files_2 = '../../../test/Data_GPS/Interpolated_2sec'
+frequency_value = 2
+
+interpolated_df = pd.DataFrame()
+for gps_file in os.listdir(gps_files_30):
+   file_path_gps = os.path.join(gps_files_2,gps_file)
+   new_file_name_gps = file_path_gps.replace('.gps.csv', '_interpolated.csv')
+   if os.path.exists(new_file_name_gps):
+       print(f'The file {new_file_name_gps} exists.')
+       interpolated = pd.read_csv(new_file_name_gps)
+       interpolated_df=pd.concat([interpolated_df, interpolated])
+   else:
+       file_path_gps_30 = os.path.join(gps_files_30,gps_file)
+       interpolated = get_interpolated_gps2(file_path_gps_30,frequency=frequency_value, ltz = params[0]['ltz'])
+       interpolated.to_csv(new_file_name_gps)
+       interpolated_df=pd.concat([interpolated_df, interpolated])
+
+interpolated_df = interpolated_df.reset_index(drop=True)
+
+# GPS Coordinates 
+# interpolated_df = pd.read_csv('coords_data/interpolated_coords_coats24.csv')
+
+interpolated_df = pd.read_csv('../../../test/Data_GPS/Interpolated_2sec/SailorPositions2023_totCanada_interpolated.csv')
 
 # Plot thresholds 
 upper = -30
@@ -50,7 +78,7 @@ for file in tqdm.tqdm(files):
         echodata, nan_indicies = remove_vertical_lines(echodata)
         echodata_swap = np.swapaxes(echodata, 0, 1)
 
-        data_to_images(echodata_swap, f'{img_path}/{new_file_name}', upper = upper, lower = lower) # save img without ground
+        data_to_images(echodata_swap, f'{img_path}/{new_file_name}',f'{npy_path}/{new_file_name}', upper = upper, lower = lower) # save img without ground
 
         # Detect bottom algorithms
         depth, hardness, depth_roughness, new_echodata = find_bottom(echodata_swap, params[0]['move_avg_windowsize'], params[0]['bottom_hardness_thresh'])
@@ -66,7 +94,7 @@ for file in tqdm.tqdm(files):
             if wave_avg > params[0]['extreme_wave_size']: 
                 new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
 
-        data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete', upper = upper, lower = lower) # save img without ground and waves
+        data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete',f'{npy_path}/{new_file_name}',upper = upper, lower = lower) # save img without ground and waves
 
         # Find fish cumsum, median depth and inds
         depth = [int(d) for d in depth]
@@ -102,14 +130,14 @@ for file in tqdm.tqdm(files):
 
         # Link to GPS coordinates
         Datetime_UTC = pd.Series(ping_times, name = 'Datetime_UTC')
-        interpolated_df['Datetime_UTC'] = pd.to_datetime(interpolated_df['Datetime'])
+        interpolated_df['Datetime_UTC'] = pd.to_datetime(interpolated_df['Datetime_UTC'])
         LatLong = interpolated_df.merge(Datetime_UTC, on = "Datetime_UTC", how = "inner")
         
-        Lat = LatLong["Lat"]
-        Long = LatLong["Long"]
-        UTC_time = pd.to_datetime(LatLong['Datetime'], utc = True)   
-        #Velocity = LatLong['Velocity']
-        Datetime_local = UTC_time.dt.tz_convert("US/Eastern")
+        Lat = LatLong["Latitude"]
+        Long = LatLong["Longitude"]
+        UTC_time = LatLong['Datetime_UTC']   
+        Velocity = LatLong['Velocity']
+        Datetime_local = LatLong['Datetime_local']
 
         # Save all results in dict
         data_dict = {
@@ -117,6 +145,7 @@ for file in tqdm.tqdm(files):
             'Local_time' : Datetime_local,
             'Lat': Lat,
             'Long': Long,
+            'Velocity': Velocity,
             'bottom_hardness': hardness,
             'bottom_roughness': depth_roughness,
             'wave_depth': wave_line,
@@ -130,8 +159,6 @@ for file in tqdm.tqdm(files):
             'nasc3': nasc3,
             'fish_depth3': fish_depth3, 
         }
-
-
 
         save_data(data_dict, f'{new_file_name}.csv', csv_path)
     except Exception as e:

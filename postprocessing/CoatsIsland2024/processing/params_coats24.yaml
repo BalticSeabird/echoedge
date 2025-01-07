@@ -48,3 +48,5 @@ fish_layer2_end: 80
 
 fish_layer3_start: 80
 fish_layer3_end: 150
+
+ltz : "US/Eastern"
