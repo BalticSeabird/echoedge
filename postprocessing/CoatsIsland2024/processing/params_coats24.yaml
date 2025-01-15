@@ -1,11 +1,11 @@
 env_params:
-  temperature: 2
-  salinity: 9
+  temperature: 4
+  salinity: 28
   pressure: 10.1325
 
 
 cal_params:
-  gain_correction: 28.07
+  gain_correction: 27.86
   equialent_beam_angle: -21
 
 

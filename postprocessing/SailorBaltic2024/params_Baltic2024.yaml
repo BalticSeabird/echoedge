@@ -1,11 +1,11 @@
-env_params:
-  temperature: 2
-  salinity: 9
+env_params:       #2023
+  temperature: 12 
+  salinity: 8
   pressure: 10.1325
 
 
-cal_params:
-  gain_correction: 28.49
+cal_params:        #2023
+  gain_correction: 28.65
   equialent_beam_angle: -21
 
 

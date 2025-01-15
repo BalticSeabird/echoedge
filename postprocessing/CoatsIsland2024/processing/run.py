@@ -23,10 +23,10 @@ from export_data import save_data, shorten_list
 warnings.filterwarnings("ignore")
 
 
-csv_path = '../../../out/csv'
-img_path = '../../../out/img'
-npy_path = '../../../out/npy'
-file_path = '../../../test/raw/Hudson'
+csv_path = 'F:/DATA_HUDSON/PROCESS/csv'
+img_path = 'F:/DATA_HUDSON/PROCESS/img'
+npy_path = 'F:/DATA_HUDSON/PROCESS/npy'
+file_path = 'F:/DATA_HUDSON/RAW_FILES'
 
 
 files = Path(file_path).glob("*-0.raw")
