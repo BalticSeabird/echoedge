@@ -24,12 +24,13 @@ warnings.filterwarnings("ignore")
 
 
 # Load all params from yaml-file
-with open('postprocessing/SailorBaltic2024/params_Baltic2024.yaml', 'r') as f:
+with open('postprocessing/SailorBaltic2023/params_Baltic2023.yaml', 'r') as f:
     params = list(yaml.load_all(f, Loader=SafeLoader))
 
-csv_path = 'out/csv'
-img_path = 'out/img'
-npy_path = 'out/npy'
+output_dir = '../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Lilia/Sailor_karlso/run250115/'
+csv_path = output_dir + 'csv'
+img_path = output_dir + 'img'
+npy_path = output_dir + 'npy'
 file_path = '../../../../../../mnt/BSP_NAS2/Acoustics/Sailor_Karlso/Raw_data/2023/'
 
 
@@ -71,7 +72,7 @@ files = Path(file_path).glob("*-0.raw")
 
 
 
-interpolated_df = pd.read_csv("postprocessing/SailorBaltic2024/SailorPositions2023_totSweden_interpolated.csv")
+interpolated_df = pd.read_csv("postprocessing/SailorBaltic2023/SailorPositions2023_totSweden_interpolated.csv")
 
 
 # Set parameter values for echogram normalization
@@ -176,7 +177,7 @@ for file in tqdm.tqdm(list(files)):
         }
 
 
-        save_data(data_dict, f'{new_file_name}.csv', "out/csv/")
+        save_data(data_dict, f'{new_file_name}.csv', output_dir+"csv/")
     except Exception as e:
         print(f'Error in file {file}')
         print(e)

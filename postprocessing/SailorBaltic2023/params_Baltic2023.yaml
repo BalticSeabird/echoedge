@@ -1,7 +1,7 @@
 env_params:       #2023
   temperature: 12 
   salinity: 8
-  pressure: 10.1325
+  pressure: 6.5
 
 
 cal_params:        #2023

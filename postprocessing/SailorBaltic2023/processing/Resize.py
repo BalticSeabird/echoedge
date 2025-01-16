@@ -18,9 +18,11 @@ from Double_thresh_function import resize_matrix_31052024
 
 # PATH ##############################################################
 
-csv_path = 'out/csv'
-npi_path = 'out/npy'
-dest_path = 'out/Resize'
+output_dir = '../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Lilia/Sailor_karlso/run250115/'
+
+csv_path = output_dir + 'csv'
+npi_path = output_dir + 'npy'
+dest_path = output_dir + 'Resize'
 
 ###############################################################
 # Check if the directory exists

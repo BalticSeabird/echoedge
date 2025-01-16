@@ -276,11 +276,12 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 ###################################               path part                   ###################################  
-npy_path = 'out/Resize'               #  Path where the resized .npy files are stored
-dest_path_max = "out/Thresh_max"    # Path to save the thresh_max curve
-dest_path_min =  "out/Thresh_min"    # Path to save the thresh_min curve
-csv_path = 'out/csv'                #  Path where the original .csv files are stored
-dest_path_dt =  "out/Schools"   # path to save the double threshold output images
+output_dir = '../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Lilia/Sailor_karlso/run250115/'
+npy_path = output_dir + 'Resize'               #  Path where the resized .npy files are stored
+dest_path_max = output_dir + "Thresh_max"    # Path to save the thresh_max curve
+dest_path_min =  output_dir + "Thresh_min"    # Path to save the thresh_min curve
+csv_path = output_dir + 'csv'                #  Path where the original .csv files are stored
+dest_path_dt =  output_dir + "Schools"   # path to save the double threshold output images
 mapping_path = npy_path                 #  Path where the mapping_info.pkl file is stored
 ###################################            end of path part               ###################################  
 

@@ -1,3 +1,5 @@
+xarray==2023.12.0
+zarr==2.18.4 
 echopype==0.8.1
 functions==0.7.0
 matplotlib==3.8.2
@@ -11,7 +13,6 @@ PyYAML==6.0.1
 ruamel.base==1.0.0
 scipy==1.13.1
 tqdm==4.64.0
-xarray==2023.12.0
 typing_extensions
 scikit-image
 astral 
