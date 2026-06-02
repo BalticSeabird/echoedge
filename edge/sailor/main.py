@@ -3,7 +3,12 @@ import warnings
 import sys
 import yaml
 import os
+import sqlite3
 import traceback
+
+from pathlib import Path
+
+import pandas as pd
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../lib'))
 
@@ -17,6 +22,19 @@ from find_waves import find_waves, find_layer
 
 warnings.filterwarnings("ignore")
 
+METADATA_DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../metadatabase/sailbuoy_metadatabase.db'))
+PROCESSING_METADATA_SCHEMA = """
+CREATE TABLE IF NOT EXISTS file_processing_metadata (
+    id INTEGER PRIMARY KEY,
+    platform TEXT NOT NULL,
+    file_name TEXT NOT NULL,
+    first_timestamp_utc TEXT,
+    last_timestamp_utc TEXT,
+    processed_at_utc TEXT NOT NULL,
+    UNIQUE(platform, file_name)
+)
+"""
+
 
 def _log_unreadable(completed_files_path, filename, reason):
     try:
@@ -28,9 +46,73 @@ def _log_unreadable(completed_files_path, filename, reason):
         pass
 
 
+def _ensure_file(path):
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    open(path, 'a').close()
+
+
+def _ensure_directory(path):
+    os.makedirs(path, exist_ok=True)
+
+
+def _utc_now_string():
+    return pd.Timestamp.now(tz='UTC').strftime('%Y-%m-%dT%H:%M:%SZ')
+
+
+def _format_timestamp_utc(value):
+    if value is None:
+        return None
+
+    timestamp = pd.to_datetime(value, utc=True, errors='coerce')
+    if pd.isna(timestamp):
+        return None
+
+    return timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+
+def _get_platform_name(params_path):
+    if isinstance(params_path, str) and params_path:
+        return Path(params_path).stem
+
+    return 'unknown'
+
+
+def _create_metadata_database(db_path):
+    os.makedirs(os.path.dirname(os.path.abspath(db_path)), exist_ok=True)
+    connection = sqlite3.connect(db_path)
+    connection.execute(PROCESSING_METADATA_SCHEMA)
+    connection.commit()
+    return connection
+
+
+def _save_processing_metadata(connection, platform, file_name, first_timestamp, last_timestamp):
+    connection.execute(
+        """
+        INSERT OR REPLACE INTO file_processing_metadata (
+            platform,
+            file_name,
+            first_timestamp_utc,
+            last_timestamp_utc,
+            processed_at_utc
+        ) VALUES (?, ?, ?, ?, ?)
+        """,
+        (
+            platform,
+            file_name,
+            _format_timestamp_utc(first_timestamp),
+            _format_timestamp_utc(last_timestamp),
+            _utc_now_string(),
+        ),
+    )
+    connection.commit()
+
+
 # Load all params from yaml-file
 with open(sys.argv[5], 'r') as f:
     params = list(yaml.load_all(f, Loader=SafeLoader))
+
+platform_name = sys.argv[6] if len(sys.argv) > 6 else _get_platform_name(sys.argv[5])
+metadata_connection = _create_metadata_database(METADATA_DB_PATH)
 
 
 # Remove already processed files  
@@ -41,11 +123,17 @@ output_path = sys.argv[4]
 csv_path = output_path+'/csv'
 img_path = output_path+'/img'
 
+_ensure_directory(csv_path)
+_ensure_directory(img_path)
+
 
 files = os.listdir(path)
 
-completed_txt_file = open(completed_files_path, 'r')
-completed_files = [line for line in completed_txt_file.readlines()]
+_ensure_file(completed_files_path)
+_ensure_file(new_processed_files_path)
+
+with open(completed_files_path, 'r') as completed_txt_file:
+    completed_files = [line for line in completed_txt_file.readlines()]
 completed_files = [file.replace('\n', '') for file in completed_files]
 
 files = [f for f in files if f not in completed_files]
@@ -71,7 +159,7 @@ if files:
                 echodata, nan_indicies = remove_vertical_lines(echodata)
                 echodata_swap = np.swapaxes(echodata, 0, 1)
                 
-                data_to_images(echodata_swap, f'{img_path}/{new_file_name}', upper = params[0]['image_upper'], lower = params[0]['image_lower']) # save img without ground
+                data_to_images(echodata_swap, f'{img_path}/{new_file_name}', upper=params[0]['image_upper'], lower=params[0]['image_lower']) # save img without ground
                 os.remove(f'{img_path}/{new_file_name}_greyscale.png')
 
                 # Detect bottom algorithms
@@ -88,7 +176,7 @@ if files:
                     if wave_avg > params[0]['extreme_wave_size']: 
                         new_echodata, wave_line, wave_avg, wave_smoothness = find_waves(new_echodatax, params[0]['wave_thresh_layer'], params[0]['in_a_row_waves'], params[0]['beam_dead_zone'])
  
-                data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete') # save img without ground and waves
+                data_to_images(new_echodata, f'{img_path}/{new_file_name}_complete', upper=params[0]['image_upper'], lower=params[0]['image_lower']) # save img without ground and waves
                 os.remove(f'{img_path}/{new_file_name}_complete_greyscale.png')
                 os.remove(f'{img_path}/{new_file_name}_complete.png')
 
@@ -123,6 +211,9 @@ if files:
                 if nan_indicies.size != 0:
                     ping_times = clean_times(ping_times, nan_indicies)
 
+                first_timestamp = ping_times[0] if len(ping_times) else None
+                last_timestamp = ping_times[-1] if len(ping_times) else None
+
         
                 # Save all results in dict
                 data_dict = {
@@ -143,6 +234,7 @@ if files:
         
 
                 save_data(data_dict, file.replace('.raw', '.csv'), csv_path, new_processed_files_path)
+                _save_processing_metadata(metadata_connection, platform_name, file, first_timestamp, last_timestamp)
 
                 # Mark as completed only after successful save
                 with open(completed_files_path, 'a') as txt_doc:
@@ -161,5 +253,14 @@ if files:
 else:
     print('All exising files already processed and analyzed.')
 
+metadata_connection.close()
+
 # Run example main 
-# python3 edge/sailor/main.py ../../../../../../mnt/BSP_NAS2/Acoustics/Sailor_Karlso/Raw_data/2025 edge/sailor/completed_files.txt edge/sailor/new_processed_files.txt ../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Echopype_results/Baltic2025 edge/sailor/paramsBaltic2025.yaml
+""" 
+    python3 edge/sailor/main.py \
+    ../../../../../../mnt/BSP_NAS2/Acoustics/SLU_Sailor2/Raw_data/2026 \
+    edge/sailor/completed_files.txt \
+    edge/sailor/new_processed_files.txt \
+    ../../../../../../mnt/BSP_NAS2_work/Acoustics_output_data/Echopype_results/Baltic2026 \
+    edge/sailor/paramsSillenBaltic2026.yaml \
+    SAILOR2  """

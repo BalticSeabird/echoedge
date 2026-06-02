@@ -1173,3 +1173,39 @@ SLUAquaSailor2020V2-Phase0-D20251022-T233113-0.raw	No read permission on /mnt/BS
 SLUAquaSailor2020V2-Phase0-D20251022-T234114-0.raw	No read permission on /mnt/BSP_NAS2/Acoustics/Sailor_other/2025/Finngrundet/Raw_files/SLUAquaSailor2020V2-Phase0-D20251022-T234114-0.raw
 SLUAquaSailor2020V2-Phase0-D20251022-T235114-0.raw	No read permission on /mnt/BSP_NAS2/Acoustics/Sailor_other/2025/Finngrundet/Raw_files/SLUAquaSailor2020V2-Phase0-D20251022-T235114-0.raw
 SLUAquaSailor2020V2-Phase0-D20251023-T000142-0.raw	No read permission on /mnt/BSP_NAS2/Acoustics/Sailor_other/2025/Finngrundet/Raw_files/SLUAquaSailor2020V2-Phase0-D20251023-T000142-0.raw
+SLUAquaSailor2020V1-Phase0-D20260409-T092050-0.raw	Processing failed: TypeError: '<' not supported between instances of 'NoneType' and 'int'
+SLUAquaSailor2020V1-Phase0-D20260409-T092552-0.raw	Processing failed: TypeError: '<' not supported between instances of 'NoneType' and 'int'
+SLUAquaSailor2020V1-Phase0-D20260409-T093550-0.raw	Processing failed: TypeError: '<' not supported between instances of 'NoneType' and 'int'
+SLUAquaSailor2020V1-Phase0-D20260409-T094051-0.raw	Processing failed: TypeError: '<' not supported between instances of 'NoneType' and 'int'
+SLUAquaSailor2020V1-Phase0-D20260410-T093052-0.raw	Processing failed: ValueError: Length of values (150) does not match length of index (142)
+SLUAquaSailor2020V1-Phase0-D20260410-T210051-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260410-T093052-0.raw	Processing failed: ValueError: Length of values (150) does not match length of index (142)
+SLUAquaSailor2020V1-Phase0-D20260410-T210051-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260411-T163051-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260412-T232550-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260416-T125049-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260421-T192050-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260421-T231049-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260422-T152553-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260423-T055550-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260425-T205552-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260410-T093052-0.raw	Processing failed: ValueError: Length of values (150) does not match length of index (142)
+SLUAquaSailor2020V1-Phase0-D20260410-T210051-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260411-T163051-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260412-T232550-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260416-T125049-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260421-T192050-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260421-T231049-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260422-T152553-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260423-T055550-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260425-T205552-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260410-T093052-0.raw	Processing failed: ValueError: Length of values (150) does not match length of index (142)
+SLUAquaSailor2020V1-Phase0-D20260410-T210051-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260411-T163051-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260412-T232550-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260416-T125049-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260421-T192050-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260421-T231049-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260422-T152553-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260423-T055550-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+SLUAquaSailor2020V1-Phase0-D20260425-T205552-0.raw	Processing failed: IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
